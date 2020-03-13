@@ -1,0 +1,29 @@
+.el-row {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.el-input {
+    width: 220px;
+}
+.charge-mix,
+.charge-max {
+    width: 104px;
+}
+.charge-middle {
+    width: 10px;
+    text-align: center;
+}
+.change-querytype {
+    margin-left: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #ccc;
+    transition: color ease 240ms;
+}
+.change-querytype:hover {
+    color: #409EFF;
+    transition: color ease 240ms;
+}
+.date-input {
+    width: 220px;
+}
