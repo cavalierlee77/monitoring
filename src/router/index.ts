@@ -5,20 +5,21 @@ import r from './registercomponents'
 Vue.use(VueRouter)
 
 const routes = [
-	{
-		path: '/',
-		name: 'Login',
-		component: r.Login
-	},
-	{
-		path: '/main',
-		component: r.Main,
-		children: []
-	}
+    {
+        path: '/',
+        name: 'Login',
+        component: r.Login
+    },
+    {
+        path: '/main',
+        name: 'Main',
+        component: r.Main,
+        children: []
+    }
 ]
 
 const router = new VueRouter({
-	routes
+    routes
 })
 
 export default router

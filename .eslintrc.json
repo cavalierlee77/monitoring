@@ -1,36 +1,36 @@
 {
-  "parser": "vue-eslint-parser",
-  "extends": [
-    "standard",
-    // "plugin:vue/recommended",
-    // "plugin:vue/essential",
-    "plugin:prettier/recommended"
-  ],
-  "plugins": ["vue"],
-  "parserOptions": {
-    "parser": "babel-eslint",
-    "ecmaVersion": 6,
-    "sourceType": "module",
-    "ecmaFeatures": {
-      "experimentalObjectRestSpread": true
+    "parser": "vue-eslint-parser",
+    "extends": [
+        "standard",
+        // "plugin:vue/recommended",
+        // "plugin:vue/essential",
+        "plugin:prettier/recommended"
+    ],
+    "plugins": ["vue"],
+    "parserOptions": {
+        "parser": "babel-eslint",
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "prettier/prettier": "error",
+        "generator-star-spacing": "off",
+        "no-irregular-whitespace": "off",
+        "camelcase": "off",
+        "no-new": "off",
+        "space-before-function-paren": "off",
+        "func-names": "off",
+        "quotes": ["error", "double"],
+        "array-bracket-newline": ["error", "consistent"]
+        // "array-element-newline": ["error", { "multiline": true }]
+    },
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true,
+        "jest": true
     }
-  },
-  "rules": {
-    "prettier/prettier": "error",
-    "generator-star-spacing": "off",
-    "no-irregular-whitespace": "off",
-    "camelcase": "off",
-    "no-new": "off",
-    "space-before-function-paren": "off",
-    "func-names": "off",
-    "quotes": ["error", "double"],
-    "array-bracket-newline": ["error", "consistent"]
-    // "array-element-newline": ["error", { "multiline": true }]
-  },
-  "env": {
-    "browser": true,
-    "node": true,
-    "es6": true,
-    "jest": true
-  }
 }

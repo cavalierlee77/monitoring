@@ -3,13 +3,13 @@ import Vue from 'vue'
 // 引入饿了么插件、样式
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import ImagePreview from '../../src/components/common/preview/components/index'
+// import ImagePreview from '../src/components/common/preview/components/index.js'
 
 // 引入格式化时间接口
 import './FormatDate.js'
 
 // 引用封装的axios文件
-import api from './MyAxios.js'
+import api from './MyAxios'
 
 // 引用原生的axios文件
 import axios from 'axios'
@@ -23,4 +23,4 @@ Vue.prototype.$PinYinHelper = PinYinHelper
 Vue.prototype.$axios = axios
 
 Vue.use(ElementUI)
-Vue.use(ImagePreview)
+// Vue.use(ImagePreview)
