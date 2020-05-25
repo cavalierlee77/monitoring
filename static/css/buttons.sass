@@ -1,0 +1,80 @@
+$btc-text: #606266;
+$btc-r: 7;
+$btc-g: 219;
+$btc-b: 219;
+$transition-time: 200ms;
+button.p-button {
+    position: relative;
+    display: flex;
+    border: 1px solid #555;
+    outline: none;
+    box-sizing: border-box;
+    height: 32px;
+    line-height: 28px;
+    background-color: #fff;
+    text-align: center;
+    padding: 0 14px;
+    border: 1px solid #dcdfe6;
+    cursor: pointer;
+    transition: all $transition-time ease;
+
+    span {
+        color: $btc-text;
+        font-size: 14px;
+        font-weight: 500;
+        font-family: system-ui;
+        transition: all $transition-time ease;
+    }
+    > i {
+        border-radius: 2em;
+        color: $btc-text;
+        transition: all $transition-time ease;
+    }
+
+    i.icon-custom {
+        mask-size: 100%;
+        background-color: $btc-text;
+        transition: all $transition-time ease;
+    }
+
+    &[type="round"] {
+        border-radius: 2em;
+    }
+
+    &[size="mini"] {
+        height: 28px;
+        line-height: 26px;
+        > span {
+            font-size: 12px;
+        }
+
+        > i {
+            height: 18px;
+            width: 18px;
+            font-size: 18px;
+            margin: 4px 4px 0 -8px;
+        }
+    }
+
+    &:hover {
+        background-color: rgba(107, 235, 235, 0.1);
+        border-color: rgba($btc-r, $btc-g, $btc-b, 0.3);
+        transition: all $transition-time ease;
+        span {
+            color: rgba($btc-r, $btc-g, $btc-b, 0.9);
+            transition: all $transition-time ease;
+        }
+        i {
+            color: rgba($btc-r, $btc-g, $btc-b, 0.7);
+            transition: all $transition-time ease;
+        }
+        i.icon-custom {
+            background-color: rgba($btc-r, $btc-g, $btc-b, 0.7);
+            transition: all $transition-time ease;
+        }
+    }
+
+    &:active {
+        border-color: rgba($btc-r, $btc-g, $btc-b, 0.8);
+    }
+}
