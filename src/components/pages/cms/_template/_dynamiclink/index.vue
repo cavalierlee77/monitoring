@@ -1,21 +1,25 @@
 <template>
-    <component :is="component" :data="data" v-if="component" />
+    <component :is="component" v-if="component" />
 </template>
 <script>
+import { mapState } from "vuex"
 export default {
     name: "dynamic-link",
-    props: ["data", "type"],
+    // props: ["data", "dynamicUrl"],
     data() {
         return {
             component: null
         }
     },
     computed: {
+        ...mapState({
+            dynamicUrl: state => state.cms.dynamicUrl
+        }),
         loader() {
-            if (!this.type) {
+            if (!this.dynamicUrl) {
                 return null
             }
-            return () => import(`./_template/${this.type}`)
+            return () => import(`./../_box/${this.dynamicUrl}`)
         }
     },
     methods: {
@@ -33,7 +37,7 @@ export default {
         this.reloader()
     },
     watch: {
-        type: {
+        dynamicUrl: {
             handler(val) {
                 this.reloader()
             }

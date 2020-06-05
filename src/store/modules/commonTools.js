@@ -1,18 +1,22 @@
 import dialog from "./tools/dialog"
-
+import commWebsocket from "./tools/websocket"
 const state = {
-    ...dialog.state
+    ...dialog.state,
+    ...commWebsocket.state
 }
 const mutations = {
-    ...dialog.mutations
+    ...dialog.mutations,
+    ...commWebsocket.mutations
 }
 const getters = {
-    ...dialog.getters
+    ...dialog.getters,
+    ...commWebsocket.getters
 }
 const actions = {
-    ...dialog.actions
+    ...dialog.actions,
+    ...commWebsocket.actions
 }
-
+console.log(state)
 export default {
     state,
     getters,

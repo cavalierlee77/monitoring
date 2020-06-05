@@ -19,7 +19,7 @@
                         :key="menuItem.index"
                     >
                         <i v-bind:class="[menuItem.imgClass]"></i>
-                        <span slot="title"> {{ menuItem.title }}</span>
+                        <span slot="title">{{ menuItem.title }}</span>
                     </el-menu-item>
                 </template>
                 <template v-else>
@@ -78,7 +78,7 @@ export default {
 
 .el-menu-vertical-demo {
     height: 100%;
-    margin-right: -1px;
+    /* margin-right: -1px; */
     background-color: #f3ece6;
 }
 .barspan {

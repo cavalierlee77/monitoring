@@ -7,15 +7,16 @@
             <div class="login_title"></div>
             <div class="login_btns">
                 <div class="duihuakuang">
-                    <div class="login_flag">
+                    <!-- <div class="login_flag">
                         <el-radio v-model="flag" label="1">分局</el-radio>
                         <el-radio v-model="flag" label="2">站级</el-radio>
-                    </div>
+                    </div> -->
                     <div class="login_username">
                         <el-input
                             id="uid"
                             v-model="username"
                             placeholder="用户名"
+                            autocomplete="off"
                         ></el-input>
                         <div class="lu_div"></div>
                     </div>
@@ -25,12 +26,13 @@
                             type="password"
                             v-model="password"
                             placeholder="密码"
+                            autocomplete="off"
                         ></el-input>
                         <div class="lp_div"></div>
                     </div>
                     <div class="login_remember">
                         <label>
-                            <el-checkbox v-model="checked"
+                            <el-checkbox v-model="checked" disabled
                                 >记住密码</el-checkbox
                             >
                         </label>
@@ -46,15 +48,19 @@
 </template>
 
 <script>
-// import Vue from "vue"
 export default {
+    created() {
+        if (window.localStorage.getItem("users")) {
+            window.localStorage.removeItem("users")
+        }
+    },
     data() {
         return {
-            username: "",
-            password: "",
+            username: "1",
+            password: "1",
             checked: false,
-            errorInfo: "",
-            flag: "2"
+            errorInfo: ""
+            // flag: "2"
         }
     },
     mounted() {
@@ -62,10 +68,10 @@ export default {
     },
     methods: {
         doLogin() {
-            this.$router.push("/main")
+            // this.$router.push("/main")
 
             // const self = this
-            // // 判断复选框是否被勾选 勾选则调用配置cookie方法
+            // 判断复选框是否被勾选 勾选则调用配置cookie方法
             // if (self.checked === true) {
             //     // 传入账号名，密码，和保存天数3个参数
             //     self.setCookie(self.username, self.password, 30)
@@ -73,17 +79,13 @@ export default {
             //     // 清空Cookie
             //     self.clearCookie()
             // }
-            // const userParam = {
-            //     loginId: this.username,
-            //     password: this.password
-            // }
-            // this.$store.dispatch("getUserInfo", userParam).then(res => {
-            //     if (this.$store.state.isFlag === "1") {
-            //         this.$router.push("/main/BranchOfficeInspectionManagement")
-            //     } else {
-            //         this.$router.push("/main/checklayout/unchecktable")
-            //     }
-            // })
+            const userParam = {
+                loginId: this.username,
+                pwd: this.password
+            }
+            this.$store.dispatch("doLogin", userParam).then(res => {
+                this.$router.push("/main")
+            })
         },
         // 设置cookie
         setCookie(cname, cpwd, exdays) {
@@ -124,13 +126,13 @@ export default {
         }
     },
     watch: {
-        flag: {
-            handler: function(val) {
-                this.$store.commit("changeIsFlag", val)
-                this.$store.commit("changeMenu", val)
-            },
-            immediate: true
-        }
+        // flag: {
+        //     handler: function(val) {
+        //         this.$store.commit("changeIsFlag", val)
+        //         this.$store.commit("changeMenu", val)
+        //     },
+        //     immediate: true
+        // }
     }
 }
 </script>

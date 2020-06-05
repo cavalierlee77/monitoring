@@ -71,7 +71,6 @@ export default {
         background-color: #eff1f4;
         position: relative;
     }
-    /*overflow: hidden;*/
 }
 
 .clear {

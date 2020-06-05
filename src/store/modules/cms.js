@@ -1,11 +1,13 @@
-// import api from "../../../static/js/MyAxios.js"
+import api from "../../../static/js/MyAxios.js"
+import direction from "./cmsDirection"
 
 const state = {
-    title: "情报板管理",
-    devCount: 0,
-    devInfoList: [],
-    cmsInfoList: [],
-    cmsStatusList: [],
+    ...direction.state, // 字典
+    title: "情报板管理", //
+    devCount: 0, // 情报板数量
+    devInfoList: [], // 原始基本信息列表
+    cmsInfoList: [], // 播放表
+    cmsStatusList: [], // 状态列表
     cmsModelList: [
         {
             type: "128×64",
@@ -138,8 +140,28 @@ const state = {
             }
         }
     ],
-    cmsList: [],
-    cmsGroupList: []
+    cmsList: [], // 修改后情报板基本信息列表
+    cmsGroupList: [],
+    devMap: {}, // 情报板map
+    cmsMap: {}, // 播放表map
+    statusMap: {}, // 状态map
+    awaitInfos: [], // 播放表等待列表
+    awaitStatus: {}, // 状态等待列表
+    dynamicUrl: "", // 路由字符串
+    cmsId: "", // 当前情报板id,
+    cmsDetailEntries: [
+        { 所在线路: "routeLineId" },
+        { 所在路段: "routeLineName" },
+        { 位置: "devicePositionDesc" },
+        { 桩号: "devicePegNo" },
+        { 厂家: "manufacturer" },
+        { 类型: "cmsTypeDesc" },
+        { 尺寸: "cmsSizeDesc" },
+        { 颜色: "cmsColorDesc" },
+        { 情报板IP: "" },
+        { 串口服务器: "" },
+        { 端口号: "" }
+    ]
 }
 
 // getters
@@ -147,402 +169,97 @@ const getters = {}
 
 // actions
 const actions = {
-    getDevInfo({ commit }) {
-        setTimeout(() => {
-            const devInfoData = [
-                {
-                    road: "G16",
-                    title: "赤峰",
-                    orgId: "00",
-                    devId: "00",
-                    type: "通州电明",
-                    station: "赤峰南收费站",
-                    size: "128×64"
-                },
-                {
-                    road: "G16",
-                    title: "赤峰",
-                    orgId: "00",
-                    devId: "01",
-                    type: "通州电明",
-                    station: "赤峰南收费站",
-                    size: "320×32"
-                },
-                {
-                    road: "G306",
-                    title: "赤承",
-                    orgId: "02",
-                    devId: "00",
-                    type: "上海三思",
-                    station: "赤承收费站",
-                    size: "192×96"
-                },
-                {
-                    road: "G15",
-                    title: "赤峰",
-                    orgId: "01",
-                    devId: "00",
-                    type: "通州电明",
-                    station: "赤峰南收费站",
-                    size: "192×96"
-                },
-                {
-                    road: "G15",
-                    title: "赤峰",
-                    orgId: "01",
-                    devId: "01",
-                    type: "通州电明",
-                    station: "赤峰南收费站",
-                    size: "128×64"
-                },
-                {
-                    road: "G15",
-                    title: "赤峰",
-                    orgId: "01",
-                    devId: "02",
-                    type: "通州电明",
-                    station: "赤峰西收费站",
-                    size: "128×64"
-                }
-            ]
-            commit("setDevInfos", devInfoData)
-        }, 2000)
-    },
-    getCmsInfo({ commit }) {
-        setTimeout(() => {
-            const cmsInfoData = [
-                {
-                    orgId: "00",
-                    devId: "00",
-                    display: "1",
-                    interval: "5",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 0,
-                                y: 0,
-                                space: 0
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 0,
-                                y: 33,
-                                space: 0
-                            }
-                        ],
-                        [
-                            {
-                                text: "安全出行",
-                                fontsize: 24,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "小心驾驶",
-                                fontsize: 24,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ]
-                    ]
-                },
-                {
-                    orgId: "00",
-                    devId: "01",
-                    display: "1",
-                    interval: "3",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶 出行平安",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 2,
-                                y: 2,
-                                space: 2
-                            }
-                        ]
-                    ]
-                },
-                {
-                    orgId: "02",
-                    devId: "00",
-                    display: "1",
-                    interval: "3",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 32,
-                                y: 8,
-                                space: 0
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 32,
-                                y: 56,
-                                space: 0
-                            }
-                        ],
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ff0000",
-                                x: 32,
-                                y: 8,
-                                space: 0
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ff0000",
-                                x: 32,
-                                y: 56,
-                                space: 0
-                            }
-                        ]
-                    ]
-                },
-                {
-                    orgId: "01",
-                    devId: "00",
-                    display: "1",
-                    interval: "3",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 24,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 50,
-                                space: 2
-                            }
-                        ],
-                        [
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ]
-                    ]
-                },
-                {
-                    orgId: "01",
-                    devId: "01",
-                    display: "1",
-                    interval: "3",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ],
-                        [
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ]
-                    ]
-                },
-                {
-                    orgId: "01",
-                    devId: "02",
-                    display: "1",
-                    interval: "3",
-                    pages: [
-                        [
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ],
-                        [
-                            {
-                                text: "安全出行",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 12,
-                                space: 2
-                            },
-                            {
-                                text: "小心驾驶",
-                                fontsize: 32,
-                                fontfamily: "microsoft yahei",
-                                color: "#ffff00",
-                                x: 12,
-                                y: 44,
-                                space: 2
-                            }
-                        ]
-                    ]
-                }
-            ]
-            commit("setCmsInfos", cmsInfoData)
-        }, 2000)
-    },
-    getStatusInfo({ commit }) {
-        setTimeout(() => {
-            const statusInfoData = [
-                {
-                    orgId: "00",
-                    devId: "00",
-                    status: "正常"
-                },
-                {
-                    orgId: "00",
-                    devId: "01",
-                    status: "正常"
-                },
-                {
-                    orgId: "02",
-                    devId: "00",
-                    status: "正常"
-                },
-                {
-                    orgId: "01",
-                    devId: "00",
-                    status: "正常"
-                },
-                {
-                    orgId: "01",
-                    devId: "01",
-                    status: "正常"
-                },
-                {
-                    orgId: "01",
-                    devId: "02",
-                    status: "正常"
-                }
-            ]
-            commit("setStatusInfos", statusInfoData)
-        }, 2000)
-    },
     postModelList({ commit }, fmdata) {
         commit("setModelList", fmdata)
     },
+    // 获取情报板基本信息
+    postDevInfo({ commit }) {
+        return new Promise((resolve, reject) => {
+            const posturl = "/Monitor-Graph/cms/getCmsBasicInfos"
+            api.post(posturl, {}, res => {
+                if (res.resultCode === "100") {
+                    commit("setDevInfos", res.resultData)
+                    resolve()
+                } else {
+                    reject(res.resultMag)
+                }
+            })
+        })
+    },
+    // 获取播放表
+    postPlaylist({ commit }) {
+        return new Promise((resolve, reject) => {
+            const posturl = "/Monitor-Graph/cms/getCjxtGatherDataChr"
+            api.post(posturl, {}, res => {
+                if (res.resultCode === "100") {
+                    commit("setCmsInfos", res.resultData)
+                    resolve()
+                } else {
+                    reject(res.resultMag)
+                }
+            })
+        })
+    },
+    // 情报板下发
     postCmsInfos({ commit }, fmdata) {
         return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                resolve()
-                commit("setCmslist", fmdata)
-            }, 4000)
-            // api.post(posturl, fmdata, res => {
-            //     if (res.resultCode == "100") {
-            //         commit("setHisHistoryData", res.resultData)
-            //         commit("setHisTotal", res.page.rows)
-            //         resolve()
-            //     } else {
-            //         reject()
-            //     }
-            // })
+            const posturl = "/collsvr/devInfoSend"
+            api.post(posturl, fmdata, res => {
+                console.log(res)
+                if (res.resultCode === "100") {
+                    // commit("setCmsInfos", res.resultData)
+                    resolve()
+                } else {
+                    reject(res.resultMag)
+                }
+            })
         })
     }
 }
 
 // mutations
 const mutations = {
+    setDynamicLink(state, data) {
+        state.dynamicUrl = data
+    },
+    setCmsId(state, data) {
+        state.cmsId = data
+    },
     setDevInfos(state, data) {
-        state.devInfoList = data
+        state.devInfoList = breakList(data)
+        this.commit("remixCmsList", data)
     },
     setCmsInfos(state, data) {
         state.cmsInfoList = data
+        this.commit("remixCmsInfo", data)
     },
     setStatusInfos(state, data) {
-        state.cmsStatusList = data
+        data.forEach(list => {
+            if (
+                state.statusMap[list.orgId + "×" + list.devId] &&
+                state.statusMap[list.orgId + "×" + list.devId].length > 0
+            ) {
+                let _include = false
+                state.statusMap[list.orgId + "×" + list.devId].forEach(
+                    status => {
+                        if (status.devVarTypeId === list.devVarTypeId) {
+                            _include = true
+                            Object.keys(status).forEach(key => {
+                                status[key] = list[key]
+                            })
+                        }
+                    }
+                )
+                if (!_include) {
+                    state.statusMap[list.orgId + "×" + list.devId].push(list)
+                }
+            } else {
+                state.statusMap[list.orgId + "×" + list.devId] = []
+                state.statusMap[list.orgId + "×" + list.devId].push(list)
+            }
+        })
+        // console.log(state.cmsStatusList)
+        // this.commit("remixStatusInfo", data)
     },
     setDevCount(state, data) {
         state.devCount = data
@@ -550,35 +267,82 @@ const mutations = {
     setModelList(state, data) {
         state.cmsModelList = [...data, ...state.cmsModelList]
     },
-    setCmslist(state, data) {
-        const infoList = [...state.cmsInfoList]
-        data.forEach(newInfo => {
-            infoList.forEach(info => {
-                if (
-                    newInfo.orgId === info.orgId &&
-                    newInfo.devId === info.devId
-                ) {
-                    info.interval = newInfo.interval
-                    info.display = newInfo.display
-                    info.pages.forEach((page, index) => {
-                        Object.entries(newInfo.pages[index]).map(
-                            ([key, val]) => {
-                                page[key] = val
-                            }
-                        )
-                    })
-                }
-            })
-        })
-        console.log("first")
-        state.cmsInfoList = infoList
-    },
-    setCmsGroupList(state, data) {
-        state.cmsGroupList = data
-    },
     setCmsList(state, data) {
         state.cmsList = data
+    },
+    // 情报板设备信息重新组装
+    remixCmsList(state, val) {
+        this.commit("setDevCount", val.length)
+
+        val.forEach(dev => {
+            state.devMap[dev.orgId + "×" + dev.deviceId] = {}
+            state.devMap[dev.orgId + "×" + dev.deviceId] = dev
+        })
+        // state.awaitInfos.forEach(info => {
+        //     Object.entries(info).map(([key, value]) => {
+        //         state.cmsMap[info.orgId + "×" + info.deviceId][
+        //             key
+        //         ] = checkPlaylistData(value)
+        //     })
+        // })
+        // Object.entries(state.cmsStatusList).map(([key, value]) => {
+        //     state.cmsMap[key].status = []
+        //     state.cmsMap[key].status.push(...value)
+        // })
+        state.cmsList = Object.keys(state.devMap)
+    },
+    // 情报板节目单信息重新组装
+    remixCmsInfo(state, val) {
+        val.forEach(info => {
+            state.cmsMap[info.orgId + "×" + info.deviceId] = {}
+            state.cmsMap[info.orgId + "×" + info.deviceId] = info
+        })
     }
+    // remixStatusInfo(state, data) {
+    //     data.forEach(list => {
+    //         if (
+    //             state.statusMap[list.orgId + "×" + list.devId] &&
+    //             state.statusMap[list.orgId + "×" + list.devId].length > 0
+    //         ) {
+    //             let _include = false
+    //             state.statusMap[list.orgId + "×" + list.devId].forEach(
+    //                 status => {
+    //                     if (status.devVarTypeId === list.devVarTypeId) {
+    //                         _include = true
+    //                         Object.keys(status).forEach(key => {
+    //                             status[key] = list[key]
+    //                         })
+    //                     }
+    //                 }
+    //             )
+    //             if (!_include) {
+    //                 state.statusMap[list.orgId + "×" + list.devId].push(list)
+    //             }
+    //         } else {
+    //             state.statusMap[list.orgId + "×" + list.devId] = []
+    //             state.statusMap[list.orgId + "×" + list.devId].push(list)
+    //         }
+    //     })
+    // }
+}
+
+function checkPlaylistData(data) {
+    try {
+        if (typeof data === "string" && typeof JSON.parse(data) === "object") {
+            return JSON.parse(data)
+        }
+    } catch (e) {}
+    return data
+}
+
+function breakList(obj) {
+    obj.forEach(dev => {
+        const devInf = dev.deviceName.split(" ")
+        dev.manufacturer = devInf[2]
+        dev.stationInfo = devInf[1]
+        dev.mapId = dev.orgId + "×" + dev.deviceId
+    })
+    return obj
 }
 
 export default {

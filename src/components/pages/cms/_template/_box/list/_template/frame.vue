@@ -1,53 +1,42 @@
 <template>
     <div class="cms-frame">
-        <section v-if="lastlist.length > 0">
-            <header>最后发布</header>
-            <div class="wrap-cms">
-                <cms-window
-                    v-for="(cms, index) in lastlist"
-                    :key="index"
-                    :cmsinfo="cms"
-                ></cms-window>
-                <div class="wrap-all"></div>
-            </div>
-        </section>
         <section v-for="(area, index) in cmsGroupList" :key="index">
             <header>
                 <span>{{ area.title }}</span>
             </header>
             <div class="wrap-cms">
                 <cms-window
-                    v-for="(cms, index) in area.list"
+                    v-for="(mid, index) in area.list"
                     :key="index"
-                    :cmsinfo="cms"
+                    :dev="devMap[mid]"
+                    :status="statusMap[mid]"
+                    :cms="cmsMap[mid]"
                 ></cms-window>
-                <div class="wrap-all"></div>
             </div>
         </section>
-        <custom-dialog></custom-dialog>
     </div>
 </template>
 <script>
 import { mapState } from "vuex"
 export default {
-    created() {
-        if (window.localStorage.getItem("list")) {
-            this.$store.replaceState(
-                Object.assign(
-                    {},
-                    this.$store.state,
-                    JSON.parse(window.localStorage.getItem("list"))
-                )
-            )
-        }
-
-        window.addEventListener("beforeunload", () => {
-            window.localStorage.setItem(
-                "list",
-                JSON.stringify(this.$store.state)
-            )
-        })
-    },
+    // created() {
+    //     if (window.localStorage.getItem("list")) {
+    //         console.log(JSON.parse(window.localStorage.getItem("list")))
+    //         this.$store.replaceState(
+    //             Object.assign(
+    //                 {},
+    //                 this.$store.state,
+    //                 JSON.parse(window.localStorage.getItem("list"))
+    //             )
+    //         )
+    //     }
+    //     window.addEventListener("beforeunload", () => {
+    //         window.localStorage.setItem(
+    //             "list",
+    //             JSON.stringify(this.$store.state)
+    //         )
+    //     })
+    // },
     data() {
         return {
             lastlist: [],
@@ -57,50 +46,45 @@ export default {
     },
     computed: {
         ...mapState({
-            cmsList: state => state.cms.cmsList
+            cmsList: state => state.cms.cmsList,
+            devInfoList: state => state.cms.devInfoList,
+            devMap: state => state.cms.devMap,
+            cmsMap: state => state.cms.cmsMap,
+            statusMap: state => state.cms.statusMap
         })
     },
     components: {
         CmsWindow: () =>
-            import(/* webpackchunkName: "cms" */ "./../_fragments/cms"),
-        CustomDialog: () =>
-            import(/* webpackchunkName: "tools" */ "./../_fragments/dialog")
+            import(
+                /* webpackchunkName: "cms" */ "@pages/cms/_template/_fragments/cms"
+            )
     },
     methods: {
-        tempManagement() {
-            const dialogInfos = {
-                title: "模板管理",
-                width: "50%"
-            }
-            this.$store.commit("setDialogStatus", true)
-            this.$store.commit("setDialogData", {})
-            this.$store.commit("setDialogType", "tempManagement")
-            this.$store.commit("setDialogInfos", dialogInfos)
-        },
-        remixCmsGroupList() {
-            this.cmsList.map(cms => {
+        remixCmsGroupList(...types) {
+            types.push("roadName")
+            this.devInfoList.forEach(cms => {
                 let i = 0
                 const l = this.cmsGroupList.length
                 for (; i < l; i++) {
-                    if (this.cmsGroupList[i].title === cms.road) {
-                        this.cmsGroupList[i].list.push(cms)
-                        break
+                    if (this.cmsGroupList[i].title === cms.roadName) {
+                        if (!this.cmsGroupList[i].list.includes(cms.mapId)) {
+                            this.cmsGroupList[i].list.push(cms.mapId)
+                            break
+                        }
                     }
                 }
                 if (i === l) {
-                    this.cmsGroupList[i] = {
-                        title: cms.road,
-                        list: [cms]
-                    }
+                    this.cmsGroupList.push({
+                        title: cms.roadName,
+                        list: [cms.mapId]
+                    })
                 }
             })
         }
     },
-    mounted() {},
     watch: {
         cmsList: {
             handler(val) {
-                console.log(val)
                 this.remixCmsGroupList()
             },
             immediate: true,
@@ -137,7 +121,6 @@ $btc-b: 219;
     section {
         header {
             height: $section-header-height;
-            // line-height: $section-header-height;
             border-bottom: 1px solid #ddd;
             box-sizing: border-box;
             display: flex;

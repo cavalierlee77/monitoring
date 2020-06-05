@@ -1,12 +1,24 @@
 .icon-new {
-    mask-image: url("./../../../../../../static/img/new.svg");
+    mask-image: url("~@/assets/cms/new.svg");
 }
 .icon-screen {
-    mask-image: url("./../../../../../../static/img/screen.svg");
+    mask-image: url("~@/assets/cms/screen.svg");
 }
 .icon-query {
-    mask-image: url("./../../../../../../static/img/query.svg");
+    mask-image: url("~@/assets/cms/query.svg");
 }
-// .icon-back {
-
-// }
+.icon-send {
+    mask-image: url("~@/assets/cms/send.svg");
+}
+.icon-clean {
+    mask-image: url("~@/assets/cms/clean.svg");
+}
+.icon-reset {
+    mask-image: url("~@/assets/cms/reset.svg");
+}
+.icon-resetall {
+    mask-image: url("~@/assets/cms/resetall.svg");
+}
+.icon-add {
+    mask-image: url("~@/assets/cms/add.svg");
+}

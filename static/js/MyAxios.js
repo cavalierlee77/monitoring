@@ -3,8 +3,8 @@
 import { that } from "../../src/main.js"
 
 var root = ""
-function change() {
-    return that.$store.state.isFlag === "2" ? "/jlgcstat" : "/jlgcsubstat"
+function change(root) {
+    return root
 }
 
 // 引用axios
@@ -34,7 +34,7 @@ function filterNull(o) {
 }
 
 function apiAxios(method, url, params, success, failure) {
-    root = change()
+    root = change(root)
     if (params) {
         params = filterNull(params)
     }
@@ -48,20 +48,21 @@ function apiAxios(method, url, params, success, failure) {
     })
         .then(function(res) {
             if (res.data != null && res.data.resultCode === "100") {
-                success(res.data)
+                // success(res.data)
             } else {
                 if (failure) {
                     failure(res.data)
                 } else {
-                    window.alert("error: " + JSON.stringify(res.data))
+                    window.alert("错误: " + JSON.stringify(res.data.resultMsg))
                 }
             }
+            success(res.data)
         })
         .catch(function(err) {
             const res = err.response
             if (err) {
                 if (res.status === 302) {
-                    // that.$router.push("/")
+                    that.$router.push("/")
                 }
             }
         })

@@ -72,20 +72,20 @@ export default {
     components: {
         SelectBox: () =>
             import(
-                /* webpackChunkName: "cms" */ "./../_fragments/selectbox.vue"
+                /* webpackChunkName: "cms" */ "@pages/cms/_template/_fragments/selectbox.vue"
             )
     },
     methods: {
         handleMenuItemClick(key, keyPath) {
-            this.$router.push("/main/cmsmodel")
+            this.$store.commit("setDynamicLink", "model")
         }
     }
 }
 </script>
 <style lang="scss" scoped>
-@import "./../../_css/button.scss";
-@import "./../../_css/buttonIcon.scss";
-@import "./../../_css/query.scss";
+@import "@pages/cms/_css/button.scss";
+@import "@pages/cms/_css/buttonIcon.scss";
+@import "@pages/cms/_css/query.scss";
 
 .header-inwrap {
     width: 100%;

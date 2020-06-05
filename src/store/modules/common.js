@@ -6,7 +6,7 @@ const state = {
     windowHgt: 0,
     cartabs: constant.ctabs,
     leftMenus: constant.leftMenus,
-    loginUser: {}
+    userInfo: {}
 }
 
 // getters
@@ -28,11 +28,11 @@ const actions = {
         commit("setMainWindowHeight", height)
     },
     // 获取登录用户信息
-    getUserInfo({ commit }, fmdata) {
+    doLogin({ commit }, fmdata) {
         return new Promise((resolve, reject) => {
-            api.post("login/login", fmdata, res => {
+            api.post("/Monitor-Graph/login/login", fmdata, res => {
                 if (res.resultCode === "100") {
-                    commit("setUserInfo", res.resultData.user)
+                    commit("setUserInfo", res.resultData)
                     resolve(res.resultData)
                 } else {
                     reject(res.resultMsg)
@@ -51,7 +51,9 @@ const mutations = {
         state.windowHgt = data
     },
     setUserInfo(state, data) {
-        state.loginUser = data
+        state.userInfo.userId = data.userId
+        state.userInfo.userName = data.userName
+        state.userInfo.orgName = data.orgName
     },
     changeMenu(state, data) {
         if (data === "2") {

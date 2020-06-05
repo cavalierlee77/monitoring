@@ -28,11 +28,6 @@
                 </nav>
             </div>
         </div>
-        <!-- <div class="cmsinfos-wrap">
-            <p>所处位置：{{ data.title }} {{ data.station }}</p>
-            <p>运行状态：{{ data.status }}</p>
-            <p>发布时间：</p>
-        </div> -->
         <div class="tools-nav">
             <select
                 name=""
@@ -62,9 +57,6 @@
                     >{{ v }}px</option
                 >
             </select>
-            <!-- <i></i>
-            <i></i>
-            <i></i> -->
             <i class="text-color" v-bind:style="changeStyle(textInfo.color)">
                 <i
                     :class="'text-' + k"
@@ -528,7 +520,7 @@ export default {
                 this.$store.commit("setDialogStatus", false)
             })
         },
-
+        // old↓
         useModel(val) {
             this.txtpArr = val.txtpArr
             this.txtpStyle = val.txtpStyle

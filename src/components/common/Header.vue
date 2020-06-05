@@ -20,7 +20,7 @@
             </el-col>
             <el-col :span="4" style="padding-left: 0px;padding-right: 0px;">
                 <div class="fcontainer">
-                    <p>{{ loginUser.userName }}</p>
+                    <p>{{ userName }}</p>
                     <i class="exit" @click="loginOut"></i>
                 </div>
             </el-col>
@@ -31,16 +31,46 @@
 <script>
 import { mapState } from "vuex"
 export default {
+    created() {
+        if (window.localStorage.getItem("users")) {
+            this.userName = JSON.parse(
+                window.localStorage.getItem("users")
+            ).userName
+        } else {
+            window.localStorage.setItem("users", JSON.stringify(this.userInfo))
+            this.userName = this.userInfo.userName
+        }
+        //     console.log(JSON.parse(window.localStorage.getItem("list")))
+        //     this.$store.replaceState(
+        //         Object.assign(
+        //             {},
+        //             this.$store.state,
+        //             JSON.parse(window.localStorage.getItem("list"))
+        //         )
+        //     )
+        // }
+        // window.addEventListener("beforeunload", () => {
+        //     window.localStorage.setItem(
+        //         "list",
+        //         JSON.stringify(this.$store.state)
+        //     )
+        // })
+    },
+    // beforeDestroy() {
+    //     // 页面销毁时,断开连接
+    //     window.localStorage.removeItem("users")
+    // },
     data() {
         return {
             Ctitle: "综合管理软件",
-            Etitle: "vehicle Integrated management software"
+            Etitle: "vehicle Integrated management software",
+            userName: ""
         }
     },
     mounted: function() {},
     computed: {
         ...mapState({
-            loginUser: state => state.common.loginUser
+            userInfo: state => state.common.userInfo
         })
     },
     methods: {

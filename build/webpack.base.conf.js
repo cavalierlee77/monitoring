@@ -28,7 +28,9 @@ module.exports = {
         alias: {
             vue$: "vue/dist/vue.esm.js",
             "@": resolve("src"),
-            pying: resolve("static/PinYinHelper.js")
+            "@pages": resolve("src/components/pages"),
+            "@common": resolve("src/components/common"),
+            "@static": resolve("static")
         }
     },
     module: {

@@ -201,7 +201,9 @@ export default {
     },
     components: {
         AddModel: () =>
-            import(/* webpackChunkName:"cms" */ "./../_fragments/modelAdd")
+            import(
+                /* webpackChunkName:"cms" */ "@pages/cms/_template/_fragments/modelAdd"
+            )
     },
     methods: {
         editModel() {
@@ -211,7 +213,7 @@ export default {
             this.nowModelData = data
         },
         handleMenuItemClick(key, keyPath) {
-            this.$router.push("/main/cms")
+            this.$store.commit("setDynamicLink", "list")
         },
         resetFrameHeight() {
             this.frameheight =
@@ -278,16 +280,11 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-@import "./../../_css/button.scss";
-@import "./../../_css/buttonIcon.scss";
+@import "@pages/cms/_css/button.scss";
+@import "@pages/cms/_css/buttonIcon.scss";
 
 $outwrap-borderline-color: #ddd;
 .cmsmodel-wrap {
-    margin: 8px;
-    border: 1px solid $outwrap-borderline-color;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    overflow: hidden;
     background-color: #fff;
     .cmsmodel-header-outwrap {
         background-color: #fff;
