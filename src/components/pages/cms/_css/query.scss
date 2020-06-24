@@ -1,8 +1,10 @@
 $qc-text: #606266;
-$qc-r: 7;
-$qc-g: 219;
-$qc-b: 219;
+$qc-r: 0;
+$qc-g: 180;
+$qc-b: 216;
 $transition-time-query: 200ms;
+$background-color: #caf0f8;
+$border-color: #00b4d8;
 .query-wrap {
     position: relative;
     display: flex;
@@ -17,9 +19,44 @@ $transition-time-query: 200ms;
     border: 1px solid #dcdfe6;
     cursor: pointer;
     transition: all $transition-time-query ease;
+    z-index: 99;
+
+    &.checked {
+        background-color: $background-color;
+        border-color: $border-color;
+        border-bottom: none;
+        border-bottom-right-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+        .query-result {
+            opacity: 1;
+            height: auto;
+            min-height: 100px;
+            max-height: 500px;
+        }
+        i.icon-custom {
+            background-color: rgba($qc-r, $qc-g, $qc-b, 0.7);
+            transition: all $transition-time-query ease;
+        }
+        input[type="text"]::-webkit-input-placeholder {
+            color: $border-color;
+            transition: all $transition-time-query ease;
+        }
+        > div {
+            opacity: 1;
+        }
+    }
+    > div {
+        width: 94%;
+        bottom: 0;
+        left: 3%;
+        border-top: 1px solid $border-color;
+        height: 1px;
+        position: absolute;
+        opacity: 0;
+    }
 
     i.icon-custom {
-        border-radius: 2em;
+        border-radius: 16px;
         color: $qc-text;
         transition: all $transition-time-query ease;
         mask-size: 100%;
@@ -27,7 +64,7 @@ $transition-time-query: 200ms;
     }
 
     &[type="round"] {
-        border-radius: 2em;
+        border-radius: 16px;
     }
 
     &[size="mini"] {
@@ -43,8 +80,8 @@ $transition-time-query: 200ms;
     }
 
     &:hover {
-        background-color: rgba(107, 235, 235, 0.1);
-        border-color: rgba($qc-r, $qc-g, $qc-b, 0.3);
+        background-color: $background-color;
+        border-color: $border-color;
         transition: all $transition-time-query ease;
 
         i.icon-custom {
@@ -52,7 +89,7 @@ $transition-time-query: 200ms;
             transition: all $transition-time-query ease;
         }
         input[type="text"]::-webkit-input-placeholder {
-            color: rgba($qc-r, $qc-g, $qc-b, 0.3);
+            color: $border-color;
             transition: all $transition-time-query ease;
         }
     }
@@ -60,7 +97,7 @@ $transition-time-query: 200ms;
     input[type="text"] {
         border: none;
         outline: none;
-        width: 200px;
+        width: 90%;
         background-color: rgba(255, 255, 255, 0);
         font-size: 14px;
         color: #555;
@@ -69,6 +106,36 @@ $transition-time-query: 200ms;
         &::-webkit-input-placeholder {
             color: #bbb;
             font-size: 14px;
+        }
+    }
+    .query-result {
+        display: flex;
+        position: absolute;
+        flex-direction: column;
+        width: 100%;
+        height: 0px;
+        top: 27px;
+        left: 0;
+        background-color: $background-color;
+        padding: 0;
+        border: 1px solid $border-color;
+        border-top: none;
+        margin-left: -1px;
+        border-radius: 0 0 16px 16px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        opacity: 0;
+        transition: all $transition-time-query ease;
+        > p {
+            text-align: left;
+            text-indent: 12px;
+            transition: all $transition-time-query ease;
+            &:hover {
+                color: $border-color;
+                font-size: 15px;
+                font-weight: 600;
+                transition: all $transition-time-query ease;
+            }
         }
     }
 }

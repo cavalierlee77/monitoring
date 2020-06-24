@@ -3,9 +3,9 @@
         <el-menu
             :default-active="onRoutes"
             class="el-menu-vertical-demo"
-            background-color="#f3ece6"
+            background-color="#00b4d8"
             text-color="#fff"
-            active-text-color="#555"
+            active-text-color="#fff"
             @open="handleOpen"
             @close="handleClose"
             @select="handleMenuItemClick"
@@ -73,13 +73,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 @import "../../../static/css/my-font-style.css";
+@import "@pages/cms/_css/commonStyle.scss";
 
 .el-menu-vertical-demo {
     height: 100%;
     /* margin-right: -1px; */
-    background-color: #f3ece6;
+    background-color: $frame-aside;
 }
 .barspan {
     color: red;

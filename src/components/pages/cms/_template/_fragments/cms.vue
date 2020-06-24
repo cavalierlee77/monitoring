@@ -10,12 +10,12 @@
                     <span>{{ dev.manufacturer }}</span>
                 </div>
             </header>
-            <text-window :infos="dev" :list="playList"></text-window>
+            <text-window :infos="dev" :playlist="playList"></text-window>
         </section>
         <aside>
             <p v-if="!statusList.flag">
                 <el-popover placement="left" width="100" trigger="click">
-                    <span slot="reference">{{
+                    <span slot="reference" class="status-error">{{
                         statusList.desc || "获取中"
                     }}</span>
                     <div>
@@ -73,9 +73,6 @@ export default {
     },
     methods: {
         cmsInfos(type) {
-            // if (!this.cmsinfo.data) {
-            //     this.cmsinfo.data = []
-            // }
             this.$store.commit("setCmsId", this.dev.mapId)
             this.$store.commit("setDynamicLink", type)
         },
@@ -127,30 +124,32 @@ export default {
                 if (this.statusList.list.length > 0) {
                     this.statusList.desc = "故障"
                     this.statusList.flag = false
+                    this.$store.commit("setErrorDev", this.dev.mapId)
                 } else if (this.statusList.list.length === 0) {
                     this.statusList.desc = "正常"
                     this.statusList.flag = true
+                    this.$store.commit("delErrorDev", this.dev.mapId)
                 }
             }
         }
     },
     watch: {
         dev: {
-            handler(val) {
+            handler() {
                 this.remixDev()
             },
             deep: true,
             immediate: true
         },
         cms: {
-            handler(val) {
+            handler() {
                 this.remixCms()
             },
             deep: true,
             immediate: true
         },
         status: {
-            handler(val) {
+            handler() {
                 this.remixStatus()
             },
             deep: true,
@@ -174,6 +173,11 @@ $transition-time: 240ms;
             margin-right: 0;
         }
     }
+    @media screen and (min-width: 1660px) {
+        &:nth-child(3n) {
+            margin-right: 0;
+        }
+    }
     width: 32.5%;
     margin-right: 1%;
     margin-top: 10px;
@@ -184,9 +188,6 @@ $transition-time: 240ms;
     overflow: hidden;
     border-radius: 6px;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-    &:nth-child(3n) {
-        margin-right: 0;
-    }
     > section {
         flex-grow: 1;
         transition: all $transition-time ease;
@@ -271,6 +272,11 @@ $transition-time: 240ms;
             > span {
                 color: rgb(65, 173, 101);
             }
+        }
+
+        .status-error {
+            color: red;
+            outline: none;
         }
     }
 }

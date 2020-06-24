@@ -50,7 +50,9 @@ export default {
             devInfoList: state => state.cms.devInfoList,
             devMap: state => state.cms.devMap,
             cmsMap: state => state.cms.cmsMap,
-            statusMap: state => state.cms.statusMap
+            statusMap: state => state.cms.statusMap,
+            checkList: state => state.cms.checkList,
+            checkListEmpty: state => state.cms.checkListEmpty
         })
     },
     components: {
@@ -80,6 +82,53 @@ export default {
                     })
                 }
             })
+        },
+        remixCheckList() {
+            if (!this.checkListEmpty) {
+                const _devList = [...this.devInfoList]
+                let _selStr = ""
+                let _newDevList = []
+                _newDevList = _devList
+                    .filter(dev => {
+                        let f = true
+                        Object.entries(this.checkList).forEach(([k, v]) => {
+                            f = f && v.includes(dev[k])
+                        })
+                        if (f) {
+                            return dev
+                        }
+                    })
+                    .map(dev => dev.mapId)
+                Object.entries(this.checkList).forEach(([k, v], index) => {
+                    if (v.length > 1) {
+                        _selStr += "("
+                    }
+                    v.forEach((val, ind) => {
+                        _selStr += val
+                        if (parseInt(ind) + 1 < v.length) {
+                            _selStr += ","
+                        }
+                    })
+                    if (v.length > 1) {
+                        _selStr += ")"
+                    }
+                    if (
+                        parseInt(index) + 1 <
+                        Object.entries(this.checkList).length
+                    ) {
+                        _selStr += " - "
+                    }
+                })
+                this.selStr = _selStr
+                this.cmsGroupList = []
+                this.cmsGroupList.push({
+                    title: _selStr,
+                    list: [..._newDevList]
+                })
+            } else if (this.checkListEmpty) {
+                this.cmsGroupList = []
+                this.remixCmsGroupList()
+            }
         }
     },
     watch: {
@@ -87,8 +136,20 @@ export default {
             handler(val) {
                 this.remixCmsGroupList()
             },
-            immediate: true,
+            // immediate: true,
             deep: true
+        },
+        checkList: {
+            handler(val) {
+                this.remixCheckList()
+            },
+            deep: true
+        },
+        checkListEmpty: {
+            handler(val) {
+                this.remixCheckList()
+            },
+            immediate: true
         }
     }
 }

@@ -4,6 +4,22 @@ import direction from "./cmsDirection"
 const state = {
     ...direction.state, // 字典
     title: "情报板管理", //
+    // titleRount: [
+    //     {
+    //         title: "情报板管理",
+    //         url: "list",
+    //         children: [
+    //             {
+    //                 title: "情报板编辑",
+    //                 url: "edit"
+    //             },
+    //             {
+    //                 title: "情报板详情",
+    //                 url: "detail"
+    //             }
+    //         ]
+    //     }
+    // ],
     devCount: 0, // 情报板数量
     devInfoList: [], // 原始基本信息列表
     cmsInfoList: [], // 播放表
@@ -161,7 +177,12 @@ const state = {
         { 情报板IP: "" },
         { 串口服务器: "" },
         { 端口号: "" }
-    ]
+    ],
+    devVarTypeIds: [], // 设备下发控制（id）字典表
+    sendBackList: [], // 下发返回信息列表
+    checkList: {},
+    checkListEmpty: true,
+    errorDev: []
 }
 
 // getters
@@ -169,6 +190,19 @@ const getters = {}
 
 // actions
 const actions = {
+    getDirections({ commit }) {
+        return new Promise((resolve, reject) => {
+            const url = "/Monitor-Graph/cms/getDeviceVarTypeInfo"
+            api.post(url, {}, res => {
+                if (res.resultCode === "100") {
+                    commit("setDevVarTypeIds", res.resultData)
+                    resolve()
+                } else {
+                    reject(res.resultMag)
+                }
+            })
+        })
+    },
     postModelList({ commit }, fmdata) {
         commit("setModelList", fmdata)
     },
@@ -205,9 +239,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             const posturl = "/collsvr/devInfoSend"
             api.post(posturl, fmdata, res => {
-                console.log(res)
                 if (res.resultCode === "100") {
-                    // commit("setCmsInfos", res.resultData)
                     resolve()
                 } else {
                     reject(res.resultMag)
@@ -219,6 +251,13 @@ const actions = {
 
 // mutations
 const mutations = {
+    setDevVarTypeIds(state, data) {
+        data.forEach(dev => {
+            if (dev.operateMode !== 1) {
+                state.devVarTypeIds.push(dev)
+            }
+        })
+    },
     setDynamicLink(state, data) {
         state.dynamicUrl = data
     },
@@ -226,7 +265,7 @@ const mutations = {
         state.cmsId = data
     },
     setDevInfos(state, data) {
-        state.devInfoList = breakList(data)
+        state.devInfoList = [...breakList(data)]
         this.commit("remixCmsList", data)
     },
     setCmsInfos(state, data) {
@@ -254,12 +293,13 @@ const mutations = {
                     state.statusMap[list.orgId + "×" + list.devId].push(list)
                 }
             } else {
-                state.statusMap[list.orgId + "×" + list.devId] = []
+                state.statusMap = {
+                    ...state.statusMap,
+                    [list.orgId + "×" + list.devId]: []
+                }
                 state.statusMap[list.orgId + "×" + list.devId].push(list)
             }
         })
-        // console.log(state.cmsStatusList)
-        // this.commit("remixStatusInfo", data)
     },
     setDevCount(state, data) {
         state.devCount = data
@@ -267,77 +307,74 @@ const mutations = {
     setModelList(state, data) {
         state.cmsModelList = [...data, ...state.cmsModelList]
     },
-    setCmsList(state, data) {
-        state.cmsList = data
-    },
     // 情报板设备信息重新组装
     remixCmsList(state, val) {
         this.commit("setDevCount", val.length)
 
         val.forEach(dev => {
-            state.devMap[dev.orgId + "×" + dev.deviceId] = {}
-            state.devMap[dev.orgId + "×" + dev.deviceId] = dev
+            state.devMap = {
+                ...state.devMap,
+                [dev.orgId + "×" + dev.deviceId]: dev
+            }
         })
-        // state.awaitInfos.forEach(info => {
-        //     Object.entries(info).map(([key, value]) => {
-        //         state.cmsMap[info.orgId + "×" + info.deviceId][
-        //             key
-        //         ] = checkPlaylistData(value)
-        //     })
-        // })
-        // Object.entries(state.cmsStatusList).map(([key, value]) => {
-        //     state.cmsMap[key].status = []
-        //     state.cmsMap[key].status.push(...value)
-        // })
         state.cmsList = Object.keys(state.devMap)
     },
     // 情报板节目单信息重新组装
     remixCmsInfo(state, val) {
         val.forEach(info => {
-            state.cmsMap[info.orgId + "×" + info.deviceId] = {}
-            state.cmsMap[info.orgId + "×" + info.deviceId] = info
+            state.cmsMap = {
+                ...state.cmsMap,
+                [info.orgId + "×" + info.deviceId]: info
+            }
         })
-    }
-    // remixStatusInfo(state, data) {
-    //     data.forEach(list => {
-    //         if (
-    //             state.statusMap[list.orgId + "×" + list.devId] &&
-    //             state.statusMap[list.orgId + "×" + list.devId].length > 0
-    //         ) {
-    //             let _include = false
-    //             state.statusMap[list.orgId + "×" + list.devId].forEach(
-    //                 status => {
-    //                     if (status.devVarTypeId === list.devVarTypeId) {
-    //                         _include = true
-    //                         Object.keys(status).forEach(key => {
-    //                             status[key] = list[key]
-    //                         })
-    //                     }
-    //                 }
-    //             )
-    //             if (!_include) {
-    //                 state.statusMap[list.orgId + "×" + list.devId].push(list)
-    //             }
-    //         } else {
-    //             state.statusMap[list.orgId + "×" + list.devId] = []
-    //             state.statusMap[list.orgId + "×" + list.devId].push(list)
-    //         }
-    //     })
-    // }
-}
-
-function checkPlaylistData(data) {
-    try {
-        if (typeof data === "string" && typeof JSON.parse(data) === "object") {
-            return JSON.parse(data)
+    },
+    CleanSendBack(state, data) {
+        state.sendBackList = []
+    },
+    sendBack(state, data) {
+        state.sendBackList = [...state.sendBackList, ...data]
+        this.commit("resetPlaylist", data)
+    },
+    resetPlaylist(state, data) {
+        data.forEach(info => {
+            state.cmsMap[info.id].data = { ...info.list }
+        })
+    },
+    setCheckList(state, data) {
+        Object.entries(data).map(([k, v]) => {
+            if (v.length > 0) {
+                if (!state.checkList.k) {
+                    state.checkList = { ...state.checkList, [k]: [] }
+                }
+                state.checkList[k] = [...v]
+            } else if (v.length === 0) {
+                if (state.checkList[k]) {
+                    delete state.checkList[k]
+                }
+            }
+        })
+        if (Object.entries(state.checkList).length > 0) {
+            state.checkListEmpty = false
+        } else {
+            state.checkListEmpty = true
         }
-    } catch (e) {}
-    return data
+    },
+    setErrorDev(state, data) {
+        if (!state.errorDev.includes(data)) {
+            state.errorDev.push(data)
+        }
+    },
+    delErrorDev(state, data) {
+        const i = state.errorDev.findIndex(dev => dev === data)
+        if (i >= 0) {
+            state.errorDev.splice(i, 1)
+        }
+    }
 }
 
 function breakList(obj) {
     obj.forEach(dev => {
-        const devInf = dev.deviceName.split(" ")
+        const devInf = dev.deviceName.replace(/\s+/g, " ").split(" ")
         dev.manufacturer = devInf[2]
         dev.stationInfo = devInf[1]
         dev.mapId = dev.orgId + "×" + dev.deviceId

@@ -12,10 +12,10 @@
                 :height="infos.height"
                 indicator-position="outside"
                 arrow="never"
-                v-if="!list === false"
+                v-if="!playlist === false"
             >
                 <el-carousel-item
-                    v-for="(page, index) in list.itemList"
+                    v-for="(page, index) in playlist.itemList"
                     :key="index"
                 >
                     <div
@@ -35,72 +35,12 @@
 </template>
 <script>
 export default {
-    data() {
-        return {}
-    },
-    // computed: {
-    //     ...mapState({
-    //         dirColor: state => state.cms.directionColor,
-    //         dirFontFamily: state => state.cms.directionShowFontFamily,
-    //         dirFontSize: state => state.cms.directionFontSize
-    //     })
-    // },
-    components: {},
     props: {
         infos: {
             type: Object
         },
-        list: {
+        playlist: {
             type: Object
-        }
-    },
-    methods: {
-        // remixInfos(info) {
-        //     const size = info.cmsSizeDesc.split("×")
-        //     info.width = size[0] + "px"
-        //     info.height = size[1] + "px"
-        //     if (info.data && JSON.stringify(info.data) !== "{}") {
-        //         info.ph = info.data.dph / info.data.itemlist.length + "px"
-        //         info.data.itemlist.fsDesc =
-        //             this.dirFontSize[info.data.itemlist.fs] + "px"
-        //         info.data.itemlist.fnDesc = this.dirFontFamily[
-        //             info.data.itemlist.fn
-        //         ]
-        //         info.data.itemlist.fcDesc = this.dirColor[info.data.itemlist.fc]
-        //     }
-        // }
-    },
-    // filters: {
-    //     txtheight(item, val) {
-    //         const txtHeight =
-    //             val.length === 0 ? item : parseFloat(item) / val.length + "px"
-    //         return { height: txtHeight }
-    //     },
-    //     settxtp(pstyle, divstyle) {
-    //         const txttop = pstyle.wy + "px"
-    //         const txtleft = pstyle.wx + "px"
-    //         const txtletterspace = 0 + "px"
-    //         const fontsize = divstyle.fsDesc
-    //         const fontfamily = divstyle.fnDesc
-    //         const color = divstyle.fcDesc
-    //         return {
-    //             top: txttop,
-    //             left: txtleft,
-    //             "letter-spacing": txtletterspace,
-    //             "font-size": fontsize,
-    //             color: color,
-    //             "font-family": fontfamily,
-    //             "line-height": fontsize
-    //         }
-    //     }
-    // },
-    watch: {
-        list: {
-            handler(val) {
-                // this.remixInfos(val)
-            },
-            immediate: true,
-            deep: true
         }
     }
 }
@@ -125,6 +65,14 @@ export default {
             position: absolute;
             width: 100%;
         }
+    }
+    .el-carousel__button {
+        width: 8px;
+        height: 8px;
+        border-radius: 20px;
+    }
+    .el-carousel__indicator.is-active button {
+        width: 20px;
     }
 }
 </style>

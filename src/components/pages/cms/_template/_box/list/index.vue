@@ -31,6 +31,8 @@ export default {
     },
     methods: {
         getBasicInfos() {
+            // 获取字典表
+            this.$store.dispatch("getDirections")
             // 获取情报板基本信息
             this.$store.dispatch("postDevInfo")
             // 获取情报板播放表
@@ -73,13 +75,12 @@ export default {
         this.resetFrameHeight()
 
         // 建立socket链接
-        this.$connect("ws://10.50.10.144:8000/websocket/12312")
+        this.$connect("ws://10.21.2.33:8000/websocket/12312")
         // 监听socket
         this.$options.sockets.onmessage = res => {
             // res.data为服务端返回的数据
             const data = JSON.parse(res.data)
             this.socketMsg = data
-            console.log(data)
         }
 
         window.onresize = function temp() {

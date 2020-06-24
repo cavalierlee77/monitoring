@@ -34,6 +34,7 @@
         "vue-native-websocket": "^2.0.14",
         "vue-router": "^3.0.1",
         "vue-template-compiler": "^2.6.8",
+        "vuedraggable": "^2.23.2",
         "vuex": "^3.0.1",
         "xlsx": "^0.13.5",
         "xlsx-style": "^0.8.13"

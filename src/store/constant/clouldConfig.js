@@ -13,7 +13,7 @@ module.exports = {
             }
         },
         "/collsvr": {
-            target: "http://10.50.10.144:8000/",
+            target: "http://10.21.2.33:8000/",
             changeOrigin: true,
             secure: false,
             pathRewrite: {

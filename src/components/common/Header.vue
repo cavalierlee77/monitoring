@@ -82,10 +82,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
-$header-bg-color: #669b93;
+@import "@pages/cms/_css/commonStyle.scss";
 /* 头部标题部分 */
 .x_mainpage_title {
-    background-color: $header-bg-color;
+    background-color: $frame-header;
     height: 72px;
     position: relative;
     z-index: 1;
@@ -124,7 +124,7 @@ $header-bg-color: #669b93;
 }
 
 .fcontainer {
-    background-color: $header-bg-color;
+    background-color: $frame-header;
     font-size: 16px;
     color: #fff;
     width: 100%;
