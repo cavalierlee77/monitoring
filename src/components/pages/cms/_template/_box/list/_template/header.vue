@@ -50,7 +50,7 @@
                     <select-box></select-box>
                 </el-popover>
             </div>
-            <query-box></query-box>
+            <query-box :width="400"></query-box>
         </section>
     </div>
 </template>
@@ -115,6 +115,8 @@ export default {
         resetDevList() {
             if (this.checkListEmpty) {
                 this.selStr = "全部"
+            } else {
+                this.remixCheckList()
             }
         }
     },
@@ -128,7 +130,8 @@ export default {
         checkListEmpty: {
             handler(val) {
                 this.resetDevList()
-            }
+            },
+            immediate: true
         }
     }
 }

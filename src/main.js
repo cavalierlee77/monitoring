@@ -8,6 +8,7 @@ import "../static/js/common.js"
 
 // websocket
 import VueNativeSocket from "vue-native-websocket"
+import proxy from "../src/store/constant/clouldConfig"
 
 Vue.config.productionTip = false
 
@@ -19,9 +20,7 @@ export const that = new Vue({
     template: "<App/>"
 })
 
-// main.js
-// base.lkWebSocket为你服务端websocket地址
-Vue.use(VueNativeSocket, "ws://10.21.2.33:8000/websocket/1231", {
+Vue.use(VueNativeSocket, proxy.websocketPath[proxy.pattern], {
     // 启用Vuex集成,store的值为你的vuex
     store: store,
     // 数据发送/接收使用使用json格式

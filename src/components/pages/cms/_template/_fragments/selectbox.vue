@@ -68,7 +68,8 @@ export default {
                     selList[v] = { titleList: selectList[k], titleKey: k }
                 })
                 return selList
-            }
+            },
+            checkList: state => state.cms.checkList
         })
     },
     methods: {
@@ -83,7 +84,15 @@ export default {
                 deviceDirectDesc: [],
                 cmsTypeDesc: []
             }
+        },
+        setSelectOptions() {
+            Object.entries(this.checkList).forEach(([k, v]) => {
+                this.checkedArr[k].push(...v)
+            })
         }
+    },
+    mounted() {
+        this.setSelectOptions()
     },
     watch: {
         checkedArr: {

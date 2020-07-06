@@ -1,11 +1,10 @@
 // 配置API接口地址
 
-import { that } from "../../src/main.js"
+// import { that } from "../../src/main.js"
+
+import { pattern, axiosUrl } from "@/store/constant/clouldConfig"
 
 var root = ""
-function change(root) {
-    return root
-}
 
 // 引用axios
 var axios = require("axios")
@@ -34,7 +33,7 @@ function filterNull(o) {
 }
 
 function apiAxios(method, url, params, success, failure) {
-    root = change(root)
+    root = axiosUrl[pattern](root, url)
     if (params) {
         params = filterNull(params)
     }
@@ -59,11 +58,12 @@ function apiAxios(method, url, params, success, failure) {
             success(res.data)
         })
         .catch(function(err) {
-            const res = err.response
+            // const res = err.response
             if (err) {
-                if (res.status === 302) {
-                    that.$router.push("/")
-                }
+                // if (res.status === 302) {
+                //     that.$router.push("/")
+                // }
+                console.log(err)
             }
         })
 }

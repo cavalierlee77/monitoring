@@ -4,6 +4,7 @@
         type="round"
         size="mini"
         :class="{ checked: checkflag && checkflagSub }"
+        :style="{ width: width + 'px' }"
     >
         <i class="icon-custom icon-query" @click="selectFn"></i>
         <input
@@ -39,6 +40,11 @@ export default {
             inputModel: ""
         }
     },
+    props: {
+        width: {
+            type: Number
+        }
+    },
     methods: {
         checkFocus() {
             this.checkflag = true
@@ -60,7 +66,6 @@ export default {
             })
         },
         checkId(e, id) {
-            console.log(id)
             e.stopPropagation()
         },
         checkEmpty() {

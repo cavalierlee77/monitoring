@@ -15,9 +15,14 @@
         <aside>
             <p v-if="!statusList.flag">
                 <el-popover placement="left" width="100" trigger="click">
-                    <span slot="reference" class="status-error">{{
-                        statusList.desc || "获取中"
-                    }}</span>
+                    <span
+                        slot="reference"
+                        v-bind:class="{
+                            'status-error': !statusList.warning,
+                            'status-warning': statusList.warning
+                        }"
+                        >{{ statusList.desc || "获取中" }}</span
+                    >
                     <div>
                         <p
                             v-for="(status, index) in statusList.list"
@@ -106,6 +111,7 @@ export default {
                 this.statusList.desc = ""
                 this.statusList.flag = true
                 this.statusList.list = []
+                this.statusList.warning = true
                 this.status.forEach(status => {
                     const count = this.statusList.list.findIndex(
                         s => s === status.devVarTypeDesc
@@ -121,8 +127,15 @@ export default {
                         }
                     }
                 })
+
                 if (this.statusList.list.length > 0) {
-                    this.statusList.desc = "故障"
+                    if (this.statusList.list.includes("通讯故障")) {
+                        this.statusList.warning = false
+                        this.statusList.desc = "故障"
+                    } else {
+                        this.statusList.warning = true
+                        this.statusList.desc = "警告"
+                    }
                     this.statusList.flag = false
                     this.$store.commit("setErrorDev", this.dev.mapId)
                 } else if (this.statusList.list.length === 0) {
@@ -276,6 +289,10 @@ $transition-time: 240ms;
 
         .status-error {
             color: red;
+            outline: none;
+        }
+        .status-warning {
+            color: orange;
             outline: none;
         }
     }

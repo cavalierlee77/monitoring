@@ -5,7 +5,6 @@
 import { mapState } from "vuex"
 export default {
     name: "dynamic-link",
-    // props: ["data", "dynamicUrl"],
     data() {
         return {
             component: null

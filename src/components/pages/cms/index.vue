@@ -9,7 +9,7 @@ export default {
     components: {
         DynamicLink: () =>
             import(
-                /* webpackChunkName: "cms" */ "@pages/cms/_template/_dynamiclink"
+                /* webpackChunkName: "cms" */ "./../cms/_template/_dynamiclink"
             )
     },
     data() {

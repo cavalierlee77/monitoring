@@ -337,7 +337,7 @@ const mutations = {
     },
     resetPlaylist(state, data) {
         data.forEach(info => {
-            state.cmsMap[info.id].data = { ...info.list }
+            state.cmsMap[info.id].data = info.list
         })
     },
     setCheckList(state, data) {

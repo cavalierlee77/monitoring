@@ -134,9 +134,8 @@ export default {
     watch: {
         cmsList: {
             handler(val) {
-                this.remixCmsGroupList()
+                this.remixCheckList()
             },
-            // immediate: true,
             deep: true
         },
         checkList: {

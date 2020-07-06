@@ -10,6 +10,7 @@
 </template>
 
 <script>
+import proxy from "@/store/constant/clouldConfig"
 export default {
     name: "",
     data() {
@@ -75,7 +76,7 @@ export default {
         this.resetFrameHeight()
 
         // 建立socket链接
-        this.$connect("ws://10.21.2.33:8000/websocket/12312")
+        this.$connect(proxy.websocketPath[proxy.pattern])
         // 监听socket
         this.$options.sockets.onmessage = res => {
             // res.data为服务端返回的数据

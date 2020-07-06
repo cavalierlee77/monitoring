@@ -445,6 +445,8 @@ export default {
         remixInfos() {
             this.data = this.devMap[this.cmsId]
             this.pageCount = 0
+            this.multipleSelection = []
+            this.sendStatusBtn = false
             this.pageData = { ...this.data }
             let cms = {}
             if (this.cmsMap[this.cmsId]) {
@@ -681,10 +683,11 @@ export default {
                     delete word.pstyle
                 })
             })
-            this.multipleSelection.unshift(this.pageData)
+            const multipleSelection = [...this.multipleSelection]
+            multipleSelection.unshift({ ...this.pageData })
             const sendArr = []
             this.sendHistory = []
-            this.multipleSelection.forEach(page => {
+            multipleSelection.forEach(page => {
                 const sendData = {
                     useId: this.userId + "",
                     orgId: page.orgId + "",
@@ -783,6 +786,7 @@ export default {
         cmsId: {
             handler(val) {
                 this.remixInfos(val)
+                this.setModelList()
             },
             immediate: true
         },
@@ -806,13 +810,13 @@ export default {
             },
             immediate: true
         },
-        cmsList: {
-            handler(val) {
-                this.setModelList(val)
-            },
-            immediate: true,
-            deep: true
-        },
+        // cmsList: {
+        //     handler(val) {
+        //         this.setModelList(val)
+        //     },
+        //     immediate: true,
+        //     deep: true
+        // },
         sendBackList: {
             handler() {
                 this.uploadSendSteps()

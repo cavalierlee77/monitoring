@@ -118,6 +118,8 @@ export default {
             if (this.checkListEmpty) {
                 this.devList = [...this.devInfoList]
                 this.selStr = "全部"
+            } else {
+                this.remixCheckList()
             }
         }
     },
