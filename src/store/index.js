@@ -3,7 +3,6 @@ import Vuex from "vuex"
 import common from "./modules/common.js"
 import commonTools from "./modules/commonTools.js"
 import cms from "./modules/cms"
-import InspectionManagement from "./modules/views/index.js"
 const config = require("./constant/clouldConfig")
 
 Vue.use(Vuex)
@@ -33,7 +32,6 @@ export default new Vuex.Store({
     modules: {
         common,
         commonTools,
-        InspectionManagement,
         cms
     }
 })

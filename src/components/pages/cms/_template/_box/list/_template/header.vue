@@ -1,8 +1,14 @@
 <template>
     <div class="header-inwrap">
         <section class="header-top">
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item>情报板管理</el-breadcrumb-item>
+                <el-breadcrumb-item>播放表展示</el-breadcrumb-item>
+            </el-breadcrumb>
+        </section>
+        <section class="header-middle">
             <span>{{ title }}</span>
-            <div class="header-infos">
+            <!-- <div class="header-infos">
                 <span
                     >总数：<span>{{ devCount }}</span></span
                 >
@@ -21,7 +27,7 @@
                     </button>
                     <p @click="handleMenuItemClick">模板管理</p>
                 </el-popover>
-            </div>
+            </div> -->
         </section>
         <section class="header-bottom">
             <div class="btn-wrap">
@@ -50,33 +56,35 @@
                     <select-box></select-box>
                 </el-popover>
             </div>
-            <query-box :width="400"></query-box>
+            <query-box
+                :width="400"
+                :resultArr="resultArr"
+                @pressKeyFn="pressKeyFn"
+            ></query-box>
         </section>
     </div>
 </template>
 <script>
 import { mapState } from "vuex"
+import { CheckBoxMixins } from "@/assets/mixins/CheckBox.js"
 export default {
     name: "",
     data() {
         return {
-            selStr: "全部"
+            resultArr: []
+            // listName: "list"
         }
     },
+    mixins: [CheckBoxMixins],
     computed: {
         ...mapState({
             title: state => state.cms.title,
             devCount: state => state.cms.devCount,
-            checkList: state => state.cms.checkList,
-            checkListEmpty: state => state.cms.checkListEmpty,
-            errorDev: state => state.cms.errorDev
+            errorDev: state => state.cms.errorDev,
+            devInfoList: state => state.cms.devInfoList
         })
     },
     components: {
-        SelectBox: () =>
-            import(
-                /* webpackChunkName: "cms" */ "@pages/cms/_template/_fragments/selectbox.vue"
-            ),
         QueryBox: () =>
             import(
                 /* webpackChunkName: "cms" */ "@pages/cms/_template/_fragments/querybox.vue"
@@ -86,54 +94,39 @@ export default {
         handleMenuItemClick(key, keyPath) {
             this.$store.commit("setDynamicLink", "model")
         },
-        remixCheckList() {
-            if (!this.checkListEmpty) {
-                let _selStr = ""
-                Object.entries(this.checkList).forEach(([k, v], index) => {
-                    if (v.length > 1) {
-                        _selStr += "("
-                    }
-                    v.forEach((val, ind) => {
-                        _selStr += val
-                        if (parseInt(ind) + 1 < v.length) {
-                            _selStr += ","
-                        }
-                    })
-                    if (v.length > 1) {
-                        _selStr += ")"
-                    }
-                    if (
-                        parseInt(index) + 1 <
-                        Object.entries(this.checkList).length
-                    ) {
-                        _selStr += " - "
+        pressKeyFn(res) {
+            const type = typeof res
+            if (type === "object") {
+                Object.entries(res).forEach(([k, v]) => {
+                    if (k === "clickList") {
+                        this.clickList(v)
                     }
                 })
-                this.selStr = _selStr
+            }
+            if (type === "string") {
+                this.selectFunc(res)
             }
         },
-        resetDevList() {
-            if (this.checkListEmpty) {
-                this.selStr = "全部"
-            } else {
-                this.remixCheckList()
+        clickList(dev) {
+            this.$store.commit("setCmsId", dev.id)
+            this.$store.commit("setDynamicLink", "detail")
+        },
+        selectFunc(str) {
+            this.resultArr = []
+            if (str !== "") {
+                this.resultArr = []
+                this.devInfoList.forEach(dev => {
+                    if (dev.deviceName.includes(str)) {
+                        this.resultArr.push({
+                            show: dev.deviceName,
+                            id: dev.mapId
+                        })
+                    }
+                })
             }
         }
     },
-    watch: {
-        checkList: {
-            handler(val) {
-                this.remixCheckList()
-            },
-            deep: true
-        },
-        checkListEmpty: {
-            handler(val) {
-                this.resetDevList()
-            },
-            immediate: true
-        }
-    }
+    watch: {}
 }
 </script>
 <style lang="scss" scoped>
@@ -150,6 +143,11 @@ export default {
     flex-direction: column;
     justify-content: space-evenly;
     section.header-top {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    section.header-middle {
         display: flex;
         flex-direction: row;
         justify-content: space-between;

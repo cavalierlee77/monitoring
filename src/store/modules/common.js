@@ -6,7 +6,8 @@ const state = {
     windowHgt: 0,
     cartabs: constant.ctabs,
     leftMenus: constant.leftMenus,
-    userInfo: {}
+    userInfo: {},
+    asideTital: "赤峰分中心"
 }
 
 // getters
@@ -54,14 +55,6 @@ const mutations = {
         state.userInfo.userId = data.userId
         state.userInfo.userName = data.userName
         state.userInfo.orgName = data.orgName
-    },
-    changeMenu(state, data) {
-        if (data === "2") {
-            state.leftMenus = constant.zhanjileftMenus
-        } else {
-            state.leftMenus = constant.fenjuleftMenus
-        }
-        state.leftMenus = constant.leftMenus
     }
 }
 

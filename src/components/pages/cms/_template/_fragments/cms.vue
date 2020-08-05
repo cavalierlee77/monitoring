@@ -1,27 +1,31 @@
 <template>
-    <div class="wrap-cms">
+    <div class="wrap-cms" v-if="checkStatus(statusList || false)">
         <section>
+            <text-window :infos="dev" :playlist="playList"></text-window>
             <header>
                 <div class="infos">
-                    <!-- <span>{{ cmsinfo.deviceAddress }}</span> -->
                     <span>{{ dev.stationInfo }}</span>
                 </div>
                 <div class="types">
                     <span>{{ dev.manufacturer }}</span>
                 </div>
             </header>
-            <text-window :infos="dev" :playlist="playList"></text-window>
         </section>
         <aside>
-            <p v-if="!statusList.flag">
-                <el-popover placement="left" width="100" trigger="click">
+            <p v-if="statusList.status">
+                <el-popover
+                    placement="left"
+                    width="100"
+                    trigger="click"
+                    v-if="statusList.status !== '正常'"
+                >
                     <span
                         slot="reference"
                         v-bind:class="{
                             'status-error': !statusList.warning,
                             'status-warning': statusList.warning
                         }"
-                        >{{ statusList.desc || "获取中" }}</span
+                        >{{ statusList.status || "" }}</span
                     >
                     <div>
                         <p
@@ -32,17 +36,20 @@
                         </p>
                     </div>
                 </el-popover>
+                <span v-if="statusList.status === '正常'">{{
+                    statusList.status
+                }}</span>
             </p>
-            <p v-if="statusList.flag">
-                <span>{{ statusList.desc || "获取中" }}</span>
+            <p v-if="!statusList.status">
+                <span class="status-unload">获取中</span>
             </p>
             <p @click="cmsInfos(`detail`)">
                 <i class="el-icon-document"></i>
             </p>
-            <p @click="cmsInfos(`edit`)">
+            <p @click="cmsInfos(`edit`, statusList.status)">
                 <i class="el-icon-edit"></i>
             </p>
-            <p><i class="el-icon-star-off"></i></p>
+            <!-- <p><i class="el-icon-star-off"></i></p> -->
         </aside>
     </div>
 </template>
@@ -62,7 +69,9 @@ export default {
         ...mapState({
             dirColor: state => state.cms.directionShowColor,
             dirFontFamily: state => state.cms.directionShowFontFamily,
-            dirFontSize: state => state.cms.directionFontSize
+            dirFontSize: state => state.cms.directionFontSize,
+            selStatusList: state => state.cms.selStatusList,
+            statusDesc: state => state.cms.statusDescMap
         })
     },
     props: {
@@ -77,7 +86,24 @@ export default {
         }
     },
     methods: {
-        cmsInfos(type) {
+        checkStatus(status) {
+            const _status = status.statusFlag || status
+            const statusList = []
+            if (this.selStatusList.includes("在线")) {
+                statusList.push(true)
+            }
+            if (this.selStatusList.includes("离线")) {
+                statusList.push(false)
+            }
+            if (statusList.length === 0) {
+                return true
+            }
+            return statusList.includes(_status)
+        },
+        cmsInfos(type, status) {
+            if (type === "edit" && (!status || status === "中断")) {
+                return
+            }
             this.$store.commit("setCmsId", this.dev.mapId)
             this.$store.commit("setDynamicLink", type)
         },
@@ -85,6 +111,9 @@ export default {
             const size = this.dev.cmsSizeDesc.split("×")
             this.dev.width = size[0] + "px"
             this.dev.height = size[1] + "px"
+        },
+        setStatusList() {
+            this.statusList = { ...this.statusDesc[this.dev.mapId] }
         },
         remixCms() {
             if (this.cms) {
@@ -105,45 +134,6 @@ export default {
                     })
                 })
             }
-        },
-        remixStatus() {
-            if (this.status) {
-                this.statusList.desc = ""
-                this.statusList.flag = true
-                this.statusList.list = []
-                this.statusList.warning = true
-                this.status.forEach(status => {
-                    const count = this.statusList.list.findIndex(
-                        s => s === status.devVarTypeDesc
-                    )
-                    if (status.devVarLastValue !== "0") {
-                        if (count < 0) {
-                            this.statusList.list.push(status.devVarTypeDesc)
-                        }
-                    }
-                    if (status.devVarLastValue === "0") {
-                        if (count >= 0) {
-                            this.statusList.list.splice(count, 1)
-                        }
-                    }
-                })
-
-                if (this.statusList.list.length > 0) {
-                    if (this.statusList.list.includes("通讯故障")) {
-                        this.statusList.warning = false
-                        this.statusList.desc = "故障"
-                    } else {
-                        this.statusList.warning = true
-                        this.statusList.desc = "警告"
-                    }
-                    this.statusList.flag = false
-                    this.$store.commit("setErrorDev", this.dev.mapId)
-                } else if (this.statusList.list.length === 0) {
-                    this.statusList.desc = "正常"
-                    this.statusList.flag = true
-                    this.$store.commit("delErrorDev", this.dev.mapId)
-                }
-            }
         }
     },
     watch: {
@@ -151,19 +141,18 @@ export default {
             handler() {
                 this.remixDev()
             },
-            deep: true,
             immediate: true
         },
         cms: {
             handler() {
                 this.remixCms()
+                this.setStatusList()
             },
-            deep: true,
             immediate: true
         },
-        status: {
+        statusDesc: {
             handler() {
-                this.remixStatus()
+                this.setStatusList()
             },
             deep: true,
             immediate: true
@@ -193,14 +182,13 @@ $transition-time: 240ms;
     }
     width: 32.5%;
     margin-right: 1%;
-    margin-top: 10px;
+    margin-top: 16px;
     border: 1px solid $border-color;
     display: flex;
     flex-direction: row;
     position: relative;
     overflow: hidden;
     border-radius: 6px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
     > section {
         flex-grow: 1;
         transition: all $transition-time ease;
@@ -222,7 +210,6 @@ $transition-time: 240ms;
                 font-size: 12px;
                 color: #0f4ec2;
                 span {
-                    // border: 1px solid rgb(143, 141, 228);
                     padding: 1px 2px;
                     background-color: rgb(143, 141, 228);
                     color: #fff;
@@ -235,7 +222,9 @@ $transition-time: 240ms;
     }
 
     &:hover {
-        box-shadow: 0 0 12px rgba($hc-r, $hc-g, $hc-b, 0.3);
+        box-shadow: 0 1px 2px -2px rgba($hc-r, $hc-g, $hc-b, 0.16),
+            0 3px 6px 0 rgba($hc-r, $hc-g, $hc-b, 0.12),
+            0 5px 12px 4px rgba($hc-r, $hc-g, $hc-b, 0.09);
         border: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
         transition: all $transition-time ease;
         > aside {
@@ -284,6 +273,9 @@ $transition-time: 240ms;
             }
             > span {
                 color: rgb(65, 173, 101);
+                &.status-unload {
+                    color: rgba(87, 90, 90, 0.7);
+                }
             }
         }
 

@@ -1,17 +1,18 @@
 <template>
     <el-container class="cms-edit-wrap">
-        <el-header class="cms-edit-header-outwrap" height="40px">
+        <el-header class="cms-edit-header-outwrap" height="80px">
             <edit-header :title="title"></edit-header>
         </el-header>
         <el-container
             class="cms-edit-container-outwrap"
             v-bind:style="{ height: frameheight }"
         >
-            <el-aside :width="asideWidth">
+            <!-- <el-aside :width="asideWidth">
                 <edit-aside :secHei="parseInt(frameheight)"></edit-aside>
-            </el-aside>
+            </el-aside> -->
             <el-main class="cms-edit-main-outwrap">
                 <edit-main :frameheight="frameheight"></edit-main>
+                <edit-dynamic></edit-dynamic>
             </el-main>
         </el-container>
     </el-container>
@@ -21,14 +22,15 @@
 export default {
     created() {
         if (document.body.clientWidth >= 1660) {
-            this.asideWidth = "360px"
+            this.asideWidth = "1000px"
         } else {
-            this.asideWidth = "240px"
+            this.asideWidth = "600px"
         }
+        this.$store.commit("setEditDynamicLink", "EditBox")
     },
     data() {
         return {
-            title: "情报板编辑",
+            title: "播放表编辑与发布",
             socketMsg: {},
             frameheight: "",
             clientHeight: "",
@@ -44,15 +46,17 @@ export default {
             import(/* webpackChunkName: "cms" */ "./_template/header"),
         EditAside: () =>
             import(/* webpackChunkName: "cms" */ "./_template/aside"),
-        EditMain: () => import(/* webpackChunkName: "cms" */ "./_template/main")
+        EditMain: () =>
+            import(/* webpackChunkName: "cms" */ "./_template/main"),
+        EditDynamic: () =>
+            import(/* webpackChunkName: "cms" */ "./_template/_dynamiclink")
     },
     mounted() {
         this.load()
+        this.$store.commit("setUnableSelOptions", [])
         this.$options.sockets.onmessage = res => {
-            // res.data为服务端返回的数据
             const data = JSON.parse(res.data)
             this.socketMsg = { ...data }
-            console.log(data)
         }
     },
     methods: {
@@ -60,8 +64,7 @@ export default {
             this.frameheight =
                 parseFloat(this.clientHeight) -
                 parseFloat(this.headerHeight) -
-                parseFloat(this.frameHeight) -
-                20 +
+                parseFloat(this.frameHeight) +
                 "px"
         },
         load() {
@@ -84,8 +87,7 @@ export default {
                 this.frameheight =
                     parseFloat(this.clientHeight) -
                     parseFloat(this.headerHeight) -
-                    parseFloat(this.frameHeight) -
-                    20 +
+                    parseFloat(this.frameHeight) +
                     "px"
             }
         },
@@ -101,7 +103,9 @@ export default {
                     val.devVarInfoList.forEach(info => {
                         plArr.push({
                             id: info.orgId + "×" + info.devId,
-                            list: info.devVarLastValue
+                            list: info.devVarLastValue,
+                            returnCode: val.returnState.returnCode,
+                            returnMessage: val.returnState.returnMessage
                         })
                     })
                     this.$store.commit("sendBack", plArr)
@@ -137,9 +141,9 @@ export default {
     }
 
     .cms-edit-main-outwrap {
-        background-color: #ddd;
+        background-color: #f3f3f3;
         display: flex;
-        padding: 8px 0 0 8px;
+        padding: 24px;
     }
 }
 </style>

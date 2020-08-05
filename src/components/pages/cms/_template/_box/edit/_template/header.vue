@@ -1,6 +1,16 @@
 <template>
     <div class="header-inwrap">
         <section class="header-top">
+            <div>
+                <span class="header-title">{{ title }}</span>
+                <span>{{
+                    dev.routeLineId +
+                        " " +
+                        dev.routeLineName +
+                        " " +
+                        dev.stationInfo
+                }}</span>
+            </div>
             <button
                 class="p-button"
                 type="round"
@@ -10,27 +20,16 @@
                 <i class="el-icon-back"></i>
                 <span>返回</span>
             </button>
-            <span>{{ title }}</span>
-            <!-- <bread-crumb separator="el-icon-arrow-right">
-                <bread-item itemLink="list">情报板管理</bread-item>
-                <bread-item>情报板编辑</bread-item>
-            </bread-crumb> -->
         </section>
     </div>
 </template>
 
 <script>
-// import { mapState } from "vuex"
+import { mapState } from "vuex"
 export default {
     data() {
         return {}
     },
-    // components: {
-    //     BreadCrumb: () =>
-    //         import(
-    //             /* webpackChunkName: 'cms' */ "./../../../_fragments/BreadCrumb/breadCrumb"
-    //         )
-    // },
     props: {
         title: {
             type: String,
@@ -41,32 +40,12 @@ export default {
         handleMenuItemClick() {
             this.$store.commit("setDynamicLink", "list")
         }
+    },
+    computed: {
+        ...mapState({
+            dev: state => state.cms.devMap[state.cms.cmsId]
+        })
     }
-    // computed: {
-    //     ...mapState({
-    //         titleRount: state => {
-    //             const titles = state.cms.titleRount
-    //             const crumbs = function(arr) {
-    //                 const childArr = arr.map(title => {
-    //                     let _child = [[]]
-    //                     if (title.children) {
-    //                         _child = [...crumbs(title.children)]
-    //                     }
-    //                     _child.map(child =>
-    //                         child.unshift({
-    //                             title: title.title,
-    //                             url: title.url
-    //                         })
-    //                     )
-    //                     return _child
-    //                 })
-    //                 return childArr
-    //             }
-    //             const titleArr = [...crumbs(titles)]
-    //             return titleArr
-    //         }
-    //     })
-    // }
 }
 </script>
 <style lang="scss" scoped>
@@ -83,20 +62,29 @@ export default {
     section.header-top {
         display: flex;
         flex-direction: row;
-        justify-content: flex-start;
+        justify-content: space-between;
         align-items: center;
-        > span {
-            display: flex;
-            height: 100%;
-            align-items: center;
-            font-size: 18px;
-            letter-spacing: 2px;
-            color: $header-text-color;
-            font-weight: 100;
-            margin-left: 10px;
-        }
+        height: 100%;
         > div {
-            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            > span {
+                display: flex;
+                height: 100%;
+                align-items: center;
+                font-size: 15px;
+                color: $header-text-color;
+                font-weight: 100;
+                margin-left: 10px;
+                &.header-title {
+                    font-size: 20px;
+                    letter-spacing: 2px;
+                    color: $frame-text-color;
+                    font-weight: 600;
+                }
+            }
         }
     }
 }

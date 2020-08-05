@@ -7,10 +7,6 @@
             <div class="login_title"></div>
             <div class="login_btns">
                 <div class="duihuakuang">
-                    <!-- <div class="login_flag">
-                        <el-radio v-model="flag" label="1">分局</el-radio>
-                        <el-radio v-model="flag" label="2">站级</el-radio>
-                    </div> -->
                     <div class="login_username">
                         <el-input
                             id="uid"
@@ -60,7 +56,6 @@ export default {
             password: "1",
             checked: false,
             errorInfo: ""
-            // flag: "2"
         }
     },
     mounted() {
@@ -125,15 +120,7 @@ export default {
             this.setCookie("", "", -1) // 修改2值都为空，天数为负1天就好了
         }
     },
-    watch: {
-        // flag: {
-        //     handler: function(val) {
-        //         this.$store.commit("changeIsFlag", val)
-        //         this.$store.commit("changeMenu", val)
-        //     },
-        //     immediate: true
-        // }
-    }
+    watch: {}
 }
 </script>
 

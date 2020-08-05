@@ -1,17 +1,17 @@
 <template>
     <div class="wrapper">
         <el-container>
-            <el-header style="height:72px;" class="wrapper-header">
-                <div ref="_header">
-                    <my-header></my-header>
-                </div>
-            </el-header>
+            <el-aside width="180px" class="wrapper-aside">
+                <header class="aside-header">
+                    <i class="x_mainpage_logo"></i>
+                    <span>{{ asideTital }}</span>
+                </header>
+                <left-menu v-bind:style="{ height: height + 'px' }"></left-menu>
+            </el-aside>
             <el-container>
-                <el-aside width="180px" class="wrapper-aside">
-                    <left-menu
-                        v-bind:style="{ height: height + 'px' }"
-                    ></left-menu>
-                </el-aside>
+                <el-header class="wrapper-header">
+                    <my-header></my-header>
+                </el-header>
                 <el-main class="wrapper-main">
                     <transition name="move" mode="out-in">
                         <router-view></router-view>
@@ -42,7 +42,8 @@ export default {
     },
     computed: {
         ...mapState({
-            height: state => state.common.windowHgt
+            height: state => state.common.windowHgt,
+            asideTital: state => state.common.asideTital
         })
     },
     methods: {}
@@ -54,22 +55,41 @@ export default {
     height: 100%;
     width: 100%;
     .wrapper-header {
-        padding: 0;
-        height: 72px;
-        box-shadow: 178px 3px 5px rgba(0, 0, 0, 0.3);
+        padding: 0 24px;
+        box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
         z-index: 8;
     }
 
     .wrapper-aside {
         z-index: 9;
-        box-shadow: 3px 0 5px rgba(0, 0, 0, 0.3);
-        background-color: rgb(49, 49, 49);
+        background-color: #001529;
     }
 
     .wrapper-main {
         padding: 0px;
         background-color: #eff1f4;
         position: relative;
+    }
+    .aside-header {
+        height: 60px;
+        line-height: 60px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i.x_mainpage_logo {
+            display: block;
+            position: relative;
+            width: 30px;
+            height: 30px;
+            background-image: url(../../../static/img/greenLogo.png);
+            background-repeat: no-repeat;
+            background-size: 100%;
+            margin-right: 8px;
+        }
     }
 }
 

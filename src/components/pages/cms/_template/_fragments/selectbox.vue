@@ -1,16 +1,25 @@
 <template>
     <section class="select-box">
         <div v-for="(v, k) in SelectList" :key="k">
-            <span>{{ k }}</span>
-            <div v-for="item in v.titleList" :key="item">
-                <input
-                    type="checkbox"
-                    v-model="checkedArr[v.titleKey]"
-                    :value="item"
-                />
-                <p>
-                    {{ item }}
-                </p>
+            <div v-if="checkAbleSeloption(v.titleKey)">
+                <span>{{ k }}：</span>
+                <div>
+                    <input
+                        type="checkbox"
+                        @click="checkAll(v.titleKey)"
+                        :checked="checkedAll[v.titleKey]"
+                    />
+                    <p>全部</p>
+                </div>
+                <div v-for="item in v.titleList" :key="item">
+                    <input
+                        type="checkbox"
+                        @click="checkArr(v.titleKey)"
+                        v-model="checkedArr[v.titleKey]"
+                        :value="item"
+                    />
+                    <p>{{ item }}</p>
+                </div>
             </div>
         </div>
         <p class="reset-wrap">
@@ -31,15 +40,16 @@ import { mapState } from "vuex"
 export default {
     data() {
         return {
-            checkedArr: {
-                roadName: [],
-                routeLineName: [],
-                devicePositionDesc: [],
-                deviceDirectDesc: [],
-                cmsTypeDesc: []
-            }
+            checkedArr: {},
+            checkedAll: {}
         }
     },
+    // props: {
+    //     listName: {
+    //         type: String,
+    //         default: () => "default"
+    //     }
+    // },
     computed: {
         ...mapState({
             SelectList: state => {
@@ -49,50 +59,107 @@ export default {
                     routeLineName: "路段",
                     devicePositionDesc: "位置",
                     deviceDirectDesc: "方向",
-                    cmsTypeDesc: "类型"
+                    cmsTypeDesc: "类型",
+                    manufacturer: "品牌",
+                    status: "状态"
                 }
                 const selectList = {}
-                Object.keys(selectDir).forEach(sel => {
-                    selectList[sel] = []
+                Object.keys(selectDir).forEach(k => {
+                    selectList[k] = []
                 })
                 const keys = Object.keys(selectList)
                 devs.forEach(dev => {
                     keys.forEach(key => {
                         if (selectList[key].includes(dev[key]) === false) {
-                            selectList[key].push(dev[key])
+                            if (dev[key]) {
+                                selectList[key].push(dev[key])
+                            }
                         }
                     })
                 })
+                selectList.status.push(...state.cms.statusDesc)
                 const selList = {}
                 Object.entries(selectDir).forEach(([k, v]) => {
                     selList[v] = { titleList: selectList[k], titleKey: k }
                 })
                 return selList
             },
-            checkList: state => state.cms.checkList
+            checkList: state => state.cms.checkList,
+            listName: state => state.cms.listName,
+            otherSelOptions: state => state.cms.statusDesc,
+            unableSelOptions: state => state.cms.unableSelOptions
         })
     },
     methods: {
-        setCheckList() {
-            this.$store.commit("setCheckList", this.checkedArr)
+        setCheckList(k) {
+            this.$store.commit("setCheckList", {
+                [this.listName]: this.checkedArr
+            })
         },
         resetAllSelectOption() {
-            this.checkedArr = {
-                roadName: [],
-                routeLineName: [],
-                devicePositionDesc: [],
-                deviceDirectDesc: [],
-                cmsTypeDesc: []
-            }
+            Object.keys(this.checkedArr).forEach(k => {
+                this.checkedArr[k] = []
+            })
+            Object.keys(this.checkedArr).forEach(k => {
+                this.checkedAll[k] = false
+            })
         },
         setSelectOptions() {
-            Object.entries(this.checkList).forEach(([k, v]) => {
+            Object.entries(this.checkList[this.listName]).forEach(([k, v]) => {
+                if (!this.checkedArr[k]) {
+                    this.$set(this.checkedArr, k, [])
+                }
                 this.checkedArr[k].push(...v)
             })
+        },
+        setBaseCheckList() {
+            Object.values(this.SelectList).forEach(v => {
+                this.$set(this.checkedArr, v.titleKey, [])
+            })
+            Object.values(this.SelectList).forEach(v => {
+                this.$set(this.checkedAll, v.titleKey, false)
+            })
+        },
+        checkAbleSeloption(k) {
+            return !this.unableSelOptions.includes(k)
+        },
+        checkAll(k) {
+            this.checkedAll[k] = !this.checkedAll[k]
+            for (const item of Object.values(this.SelectList)) {
+                if (item.titleKey === k) {
+                    if (this.checkedAll[k]) {
+                        this.checkedArr[k] = [...item.titleList]
+                    } else {
+                        this.checkedArr[k] = []
+                    }
+                    break
+                }
+            }
+        },
+        checkArr(k) {
+            setTimeout(() => {
+                const _objSelectList = Object.values(this.SelectList)
+                for (const osl of _objSelectList) {
+                    if (osl.titleKey === k) {
+                        if (
+                            this.checkedArr[k].length === osl.titleList.length
+                        ) {
+                            this.checkedAll[k] = true
+                        } else if (
+                            this.checkedArr[k].length < osl.titleList.length
+                        ) {
+                            this.checkedAll[k] = false
+                        }
+                    }
+                }
+            }, 0)
         }
     },
     mounted() {
-        this.setSelectOptions()
+        setTimeout(() => {
+            this.setBaseCheckList()
+            this.setSelectOptions()
+        }, 0)
     },
     watch: {
         checkedArr: {
@@ -100,6 +167,12 @@ export default {
                 this.setCheckList()
             },
             deep: true
+        },
+        listName: {
+            handler: function(val) {
+                this.setBaseCheckList()
+                this.setSelectOptions()
+            }
         }
     }
 }
@@ -113,45 +186,50 @@ export default {
     flex-direction: column;
     justify-content: center;
     > div {
-        display: flex;
-        align-items: center;
-        height: 40px;
-        > * {
-            margin-right: 16px;
-        }
-        span {
-            display: block;
-            position: relative;
-            width: 100px;
-            text-align: right;
-            color: rgb(62, 145, 212);
-            font-size: 15px;
-        }
         > div {
-            position: relative;
-            input {
+            display: flex;
+            align-items: center;
+            height: 40px;
+            > * {
+                margin-right: 16px;
+            }
+            span {
                 display: block;
-                position: absolute;
-                width: 100%;
-                height: 100%;
-                opacity: 0;
-                cursor: pointer;
-                &:checked ~ p {
-                    border-color: rgb(62, 145, 212);
+                position: relative;
+                width: 100px;
+                text-align: right;
+                color: rgb(62, 145, 212);
+                font-size: 15px;
+                margin-right: 36px;
+            }
+            > div {
+                position: relative;
+                input {
+                    display: block;
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    opacity: 0;
+                    cursor: pointer;
+                    &:checked ~ p {
+                        border-color: rgb(62, 145, 212);
+                        color: rgb(255, 255, 255);
+                        background-color: rgb(62, 145, 212);
+                        font-weight: 600;
+                        transition: all 400ms ease;
+                    }
+                }
+                > p {
+                    border: 1px solid rgba(222, 222, 222, 0);
+                    border-radius: 3px;
+                    padding: 2px 12px;
+                    cursor: pointer;
+                }
+                &:hover > p {
                     color: rgb(62, 145, 212);
                     font-weight: 600;
+                    transition: border-color 400ms ease, color 400ms ease;
                 }
-            }
-            > p {
-                border: 1px solid #ccc;
-                border-radius: 3px;
-                padding: 2px 12px;
-            }
-            &:hover > p {
-                border-color: rgb(62, 145, 212);
-                color: rgb(62, 145, 212);
-                font-weight: 600;
-                transition: border-color 400ms ease, color 400ms ease;
             }
         }
     }

@@ -5,24 +5,39 @@
 </template>
 
 <script>
+import proxy from "@/store/constant/clouldConfig"
 export default {
+    computed: {
+        userId: () => JSON.parse(window.localStorage.getItem("users")).userId
+    },
     components: {
         DynamicLink: () =>
             import(
                 /* webpackChunkName: "cms" */ "./../cms/_template/_dynamiclink"
             )
     },
-    data() {
-        return {
-            // type: "list"
-        }
-    },
     created() {
         this.$store.commit("setDynamicLink", "list")
+        this.$connect(proxy.websocketPath[proxy.pattern] + this.userId)
+        // 建立socket链接
+        console.log("建立socket链接")
+        this.initializeWebSocket()
+    },
+    methods: {
+        initializeWebSocket() {
+            // 监听socket  心跳包信息
+            this.$options.sockets.onmessage = res => {
+                // res.data为服务端返回的数据
+                const data = JSON.parse(res.data)
+                if (data.webInfoType === "connect_heartbeat") {
+                    this.$socket.send("get_heartbeat_success")
+                }
+            }
+        }
     },
     beforeDestroy() {
         // 页面销毁时,断开连接
-        console.log("页面销毁，断开websocket连接")
+        console.log("页面销毁，断开socket连接")
         this.$disconnect()
     }
 }
@@ -30,10 +45,6 @@ export default {
 <style lang="scss" scoped>
 $outwrap-borderline-color: #ddd;
 .cms-wrap {
-    margin: 8px;
-    border: 1px solid $outwrap-borderline-color;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
     overflow: hidden;
 }
 </style>

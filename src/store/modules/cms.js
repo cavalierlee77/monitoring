@@ -1,9 +1,12 @@
+import Vue from "vue"
 import api from "../../../static/js/MyAxios.js"
 import direction from "./cmsDirection"
+import edit from "./cmsEdit"
 
 const state = {
     ...direction.state, // 字典
-    title: "情报板管理", //
+    ...edit.state,
+    title: "情报板展示", //
     // titleRount: [
     //     {
     //         title: "情报板管理",
@@ -166,23 +169,28 @@ const state = {
     dynamicUrl: "", // 路由字符串
     cmsId: "", // 当前情报板id,
     cmsDetailEntries: [
-        { 所在线路: "routeLineId" },
+        { 所在线路: "roadName" },
         { 所在路段: "routeLineName" },
-        { 位置: "devicePositionDesc" },
-        { 桩号: "devicePegNo" },
-        { 厂家: "manufacturer" },
-        { 类型: "cmsTypeDesc" },
-        { 尺寸: "cmsSizeDesc" },
-        { 颜色: "cmsColorDesc" },
-        { 情报板IP: "" },
-        { 串口服务器: "" },
-        { 端口号: "" }
+        { 具体位置: "stationInfo" },
+        { 所在桩号: "devicePegNo" },
+        { 品牌名称: "manufacturer" },
+        // { 类型: "cmsTypeDesc" },
+        { 像素尺寸: "cmsSizeDesc" },
+        { 显示颜色: "cmsColorDesc" },
+        { 情报板IP: "" }
+        // { 串口服务器: "" },
+        // { 端口号: "" }
     ],
     devVarTypeIds: [], // 设备下发控制（id）字典表
     sendBackList: [], // 下发返回信息列表
-    checkList: {},
-    checkListEmpty: true,
-    errorDev: []
+    checkList: { default: [] },
+    checkListEmpty: {},
+    errorDev: [],
+    // statusDesc: [{ 状态: ["正常", "离线", "故障"] }],
+    statusDesc: ["在线", "离线"],
+    unableSelOptions: [],
+    selStatusList: [],
+    statusDescMap: {}
 }
 
 // getters
@@ -190,6 +198,7 @@ const getters = {}
 
 // actions
 const actions = {
+    ...edit.actions,
     getDirections({ commit }) {
         return new Promise((resolve, reject) => {
             const url = "/Monitor-Graph/cms/getDeviceVarTypeInfo"
@@ -238,19 +247,30 @@ const actions = {
     postCmsInfos({ commit }, fmdata) {
         return new Promise((resolve, reject) => {
             const posturl = "/collsvr/devInfoSend"
-            api.post(posturl, fmdata, res => {
-                if (res.resultCode === "100") {
-                    resolve()
-                } else {
-                    reject(res.resultMag)
+            api.post(
+                posturl,
+                fmdata,
+                res => {
+                    if (res.resultCode === "100") {
+                        resolve(res)
+                    } else {
+                        reject(res)
+                    }
+                },
+                err => {
+                    resolve(err)
                 }
-            })
+            )
         })
     }
 }
 
 // mutations
 const mutations = {
+    ...edit.mutations,
+    setUnableSelOptions(state, data) {
+        state.unableSelOptions = [...data]
+    },
     setDevVarTypeIds(state, data) {
         data.forEach(dev => {
             if (dev.operateMode !== 1) {
@@ -279,26 +299,68 @@ const mutations = {
                 state.statusMap[list.orgId + "×" + list.devId].length > 0
             ) {
                 let _include = false
-                state.statusMap[list.orgId + "×" + list.devId].forEach(
-                    status => {
-                        if (status.devVarTypeId === list.devVarTypeId) {
-                            _include = true
-                            Object.keys(status).forEach(key => {
-                                status[key] = list[key]
-                            })
+                const array = state.statusMap[list.orgId + "×" + list.devId]
+                for (let i = 0; i < array.length; i++) {
+                    if (array[i].devVarTypeId === list.devVarTypeId) {
+                        _include = true
+                        if (list.devVarLastValue === "1") {
+                            Vue.set(array[i], "collCtrTime", list.collCtrTime)
+                            Vue.set(
+                                array[i],
+                                "devVarLastValue",
+                                list.devVarLastValue
+                            )
+                        } else if (list.devVarLastValue === "0") {
+                            array.splice(i, 1)
                         }
+                        break
                     }
-                )
+                }
                 if (!_include) {
-                    state.statusMap[list.orgId + "×" + list.devId].push(list)
+                    if (list.devVarLastValue === "1") {
+                        state.statusMap[list.orgId + "×" + list.devId].push(
+                            list
+                        )
+                    }
                 }
             } else {
-                state.statusMap = {
-                    ...state.statusMap,
-                    [list.orgId + "×" + list.devId]: []
+                Vue.set(state.statusMap, list.orgId + "×" + list.devId, [])
+                if (list.devVarLastValue === "1") {
+                    Vue.set(state.statusMap, list.orgId + "×" + list.devId, [
+                        { ...list }
+                    ])
                 }
-                state.statusMap[list.orgId + "×" + list.devId].push(list)
             }
+        })
+        this.commit("setStatueDesc")
+    },
+    setStatueDesc(state, data) {
+        Object.entries(state.statusMap).forEach(([k, v]) => {
+            const statusDescList = v.map(dev => dev.devVarTypeDesc)
+            const statusDesc = {}
+            statusDesc.list = [...statusDescList]
+            if (statusDescList.length > 0) {
+                if (statusDescList.includes("通讯故障")) {
+                    statusDesc.desc = "离线"
+                    statusDesc.status = "中断"
+                    statusDesc.warning = false
+                    statusDesc.statusFlag = false
+                } else {
+                    statusDesc.desc = "在线"
+                    statusDesc.status = "警告"
+                    statusDesc.warning = true
+                    statusDesc.statusFlag = true
+                }
+                statusDesc.flag = false
+                this.commit("setErrorDev", k)
+            } else if (statusDescList.length === 0) {
+                statusDesc.desc = "在线"
+                statusDesc.status = "正常"
+                statusDesc.flag = true
+                statusDesc.statusFlag = true
+                this.commit("delErrorDev", k)
+            }
+            Vue.set(state.statusDescMap, k, { ...statusDesc })
         })
     },
     setDevCount(state, data) {
@@ -310,7 +372,6 @@ const mutations = {
     // 情报板设备信息重新组装
     remixCmsList(state, val) {
         this.commit("setDevCount", val.length)
-
         val.forEach(dev => {
             state.devMap = {
                 ...state.devMap,
@@ -341,23 +402,50 @@ const mutations = {
         })
     },
     setCheckList(state, data) {
-        Object.entries(data).map(([k, v]) => {
-            if (v.length > 0) {
-                if (!state.checkList.k) {
-                    state.checkList = { ...state.checkList, [k]: [] }
+        Object.entries(data).map(([ok, ov]) => {
+            if (!state.checkList[ok]) {
+                state.checkList = { ...state.checkList, [ok]: {} }
+            }
+            Object.entries(ov).map(([ik, iv]) => {
+                if (iv.length > 0) {
+                    if (!state.checkList[ok][ik]) {
+                        state.checkList[ok] = {
+                            ...state.checkList[ok],
+                            [ik]: []
+                        }
+                    }
+                    state.checkList[ok][ik] = [...iv]
+                } else if (iv.length === 0) {
+                    if (state.checkList[ok][ik]) {
+                        delete state.checkList[ok][ik]
+                    }
                 }
-                state.checkList[k] = [...v]
-            } else if (v.length === 0) {
-                if (state.checkList[k]) {
-                    delete state.checkList[k]
-                }
+            })
+            if (Object.entries(state.checkList[ok]).length > 0) {
+                // state.checkListEmpty = false
+                Vue.set(state.checkListEmpty, ok, false)
+            } else {
+                // state.checkListEmpty = true
+                Vue.set(state.checkListEmpty, ok, true)
             }
         })
-        if (Object.entries(state.checkList).length > 0) {
-            state.checkListEmpty = false
-        } else {
-            state.checkListEmpty = true
-        }
+        // Object.entries(data).map(([k, v]) => {
+        //     if (v.length > 0) {
+        //         if (!state.checkList.k) {
+        //             state.checkList = { ...state.checkList, [k]: [] }
+        //         }
+        //         state.checkList[k] = [...v]
+        //     } else if (v.length === 0) {
+        //         if (state.checkList[k]) {
+        //             delete state.checkList[k]
+        //         }
+        //     }
+        // })
+        // if (Object.entries(state.checkList).length > 0) {
+        //     state.checkListEmpty = false
+        // } else {
+        //     state.checkListEmpty = true
+        // }
     },
     setErrorDev(state, data) {
         if (!state.errorDev.includes(data)) {

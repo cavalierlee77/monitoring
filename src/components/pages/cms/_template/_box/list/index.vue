@@ -1,6 +1,6 @@
 <template>
     <el-container class="container-outwrap">
-        <el-header class="header-outwrap" height="80px">
+        <el-header class="header-outwrap" height="100px">
             <cms-header></cms-header>
         </el-header>
         <el-main class="main-outwrap" v-bind:style="{ height: frameheight }">
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import proxy from "@/store/constant/clouldConfig"
+import { mapState } from "vuex"
 export default {
     name: "",
     data() {
@@ -23,6 +23,11 @@ export default {
             awaitStatus: [],
             socketMsg: {}
         }
+    },
+    computed: {
+        ...mapState({
+            isConnected: state => state.commonTools.socket.isConnected
+        })
     },
     components: {
         CmsList: () =>
@@ -38,19 +43,29 @@ export default {
             this.$store.dispatch("postDevInfo")
             // 获取情报板播放表
             this.$store.dispatch("postPlaylist")
+
+            this.$store.commit("setUnableSelOptions", [])
         },
         resetFrameHeight() {
             this.frameheight =
                 parseFloat(this.clientHeight) -
                 parseFloat(this.headerHeight) -
-                parseFloat(this.frameHeight) -
-                20 +
+                parseFloat(this.frameHeight) +
                 "px"
         },
         // 依据map得到情报板列表
         resetLists() {
             this.cmsList = Object.values(this.cmsMap)
             this.$store.commit("setCmsList", this.cmsList)
+        },
+        initializeWebSocket() {
+            // 监听socket
+            this.$options.sockets.onmessage = res => {
+                // console.log(res)
+                // res.data为服务端返回的数据
+                const data = JSON.parse(res.data)
+                this.socketMsg = { ...data }
+            }
         },
         // 处理socket数据
         remixSocketMsg(val) {
@@ -59,13 +74,21 @@ export default {
                     this.$store.commit("setStatusInfos", val.devVarInfoList)
                 }
                 if (val.webInfoType === "devCtrReturn") {
-                    console.log(val)
                     this.$store.dispatch("postPlaylist")
                 }
+            }
+        },
+        checkIsConnected() {
+            // console.log("isConnected:" + this.isConnected)
+            if (this.isConnected === true) {
+                this.$socket.send("getDevVarInfo")
+                // this.$socket.sendObj({ getDevVarInfo: "getDevVarInfo" })
             }
         }
     },
     mounted() {
+        this.$store.commit("setCheckName", "list")
+        this.initializeWebSocket()
         this.getBasicInfos()
         // 计算高度
         this.clientHeight = `${document.documentElement.clientHeight}`
@@ -74,16 +97,6 @@ export default {
             ".header-outwrap"
         ).style.height
         this.resetFrameHeight()
-
-        // 建立socket链接
-        this.$connect(proxy.websocketPath[proxy.pattern])
-        // 监听socket
-        this.$options.sockets.onmessage = res => {
-            // res.data为服务端返回的数据
-            const data = JSON.parse(res.data)
-            this.socketMsg = data
-        }
-
         window.onresize = function temp() {
             this.clientHeight = `${document.documentElement.clientHeight}`
             this.headerHeight = document.querySelector(
@@ -108,6 +121,12 @@ export default {
                 this.resetLists(val)
             },
             deep: true
+        },
+        isConnected: {
+            handler(val) {
+                this.checkIsConnected()
+            },
+            immediate: true
         }
     }
 }

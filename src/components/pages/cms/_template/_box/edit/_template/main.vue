@@ -1,129 +1,41 @@
 <template>
     <section class="cms-edit-main-inwrap">
         <header>
-            <div class="in-header-top">
-                <p>
-                    {{ pageData.roadName }}
-                    {{ pageData.stationInfo }}
-                </p>
+            <div class="in-header-left">
+                <p>播放表详情</p>
             </div>
-            <div class="in-header-bottom">
-                <p>
-                    共<span>{{ pageList.length }}</span
-                    >屏 当前为第<span>{{ parseInt(pageCount) + 1 }}</span
-                    >屏
-                </p>
+            <div class="in-header-right">
                 <div class="btns-wrap">
-                    <el-popover
-                        placement="bottom"
-                        width="600"
-                        trigger="manual"
-                        v-model="sendStatusBtn"
-                    >
-                        <section class="send-status">
-                            <div class="send-status-wrap send-status-title">
-                                <span></span>
-                                <p>
-                                    <i class="icon-computer"></i>
-                                    <i class="icon-serve"></i>
-                                    <i class="icon-device"></i>
-                                </p>
-                            </div>
-                            <div
-                                class="send-status-wrap"
-                                v-for="(stat, index) in sendHistory"
-                                :key="index"
-                            >
-                                <span>{{ stat.cmsName }}</span>
-                                <el-steps
-                                    :active="stat.active"
-                                    :finish-status="stat.finishStatus"
-                                    :process-status="stat.processStatus"
-                                >
-                                    <el-step></el-step>
-                                    <el-step></el-step>
-                                    <el-step></el-step>
-                                </el-steps>
-                            </div>
-                        </section>
-                        <button
-                            class="p-button"
-                            type="round"
-                            size="mini"
-                            slot="reference"
-                            @click="sendStatusShow"
-                        >
-                            <i class="el-icon-circle-plus-outline"></i>
-                            <span>发布状态</span>
-                        </button>
-                    </el-popover>
-                    <el-popover
-                        placement="top"
-                        title="情报板列表"
-                        width="600"
-                        trigger="click"
-                        v-model="visible"
-                    >
-                        <el-table
-                            :data="newCmslist"
-                            @selection-change="handleSelectionChange"
-                            tooltip-effect="dark"
-                            height="285"
-                            ref="multipleTable"
-                        >
-                            <el-table-column type="selection" width="55">
-                            </el-table-column>
-                            <el-table-column
-                                width="150"
-                                property="orgName"
-                                label="机构"
-                            ></el-table-column>
-                            <el-table-column
-                                property="deviceName"
-                                label="位置"
-                            ></el-table-column>
-                        </el-table>
-                        <div style="text-align: right; margin: 0">
-                            <el-button
-                                size="mini"
-                                type="text"
-                                @click="toggleSelection()"
-                                >重置</el-button
-                            >
-                            <el-button
-                                type="primary"
-                                size="mini"
-                                @click="visible = false"
-                                >关闭</el-button
-                            >
-                        </div>
-                        <button
-                            class="p-button"
-                            type="round"
-                            size="mini"
-                            slot="reference"
-                        >
-                            <i class="el-icon-circle-plus-outline"></i>
-                            <span>追加情报板</span>
-                        </button>
-                    </el-popover>
-                    <!-- <button
+                    <button
                         class="p-button"
                         type="round"
-                        size="mini"
-                        @click="resetAllCmsData"
+                        size="normal"
+                        @click="addPage"
                     >
-                        <i class="icon-custom icon-resetall"></i>
-                        <span>全部重置</span>
+                        <i class="el-icon-circle-plus-outline"></i>
+                        <span>新增条目</span>
                     </button>
-                    <button class="p-button" type="round" size="mini">
-                        <i class="icon-custom icon-clean"></i>
-                        <span>全部清空</span>
+                    <!-- <button class="p-button" type="round" size="normal">
+                        <i class="el-icon-document-copy"></i>
+                        <span>从模板导入条目</span>
+                    </button>
+                    <button class="p-button" type="round" size="normal">
+                        <i class="el-icon-time"></i>
+                        <span>从发布历史导入条目</span>
                     </button> -->
                     <button
                         class="p-button"
                         type="round"
-                        size="mini"
+                        size="normal"
+                        @click="addToBox"
+                    >
+                        <i class="icon-custom icon-addto"></i>
+                        <span>追加情报板</span>
+                    </button>
+                    <button
+                        class="p-button"
+                        type="round"
+                        size="normal"
                         @click="sendCmsList"
                     >
                         <i class="icon-custom icon-send"></i>
@@ -133,219 +45,58 @@
             </div>
         </header>
         <section class="cms-edit-main">
-            <div class="cms-edit-main-top">
-                <div
-                    class="playlist-wrap"
-                    :style="{
-                        height: inFrameHeight
-                    }"
-                >
-                    <div class="playlist-wrap-in">
-                        <div class="windows-wrap-in">
-                            <div
-                                class="player-wrap"
-                                v-for="(count, index) in pageList"
-                                :key="index"
-                                @click="changePage(index)"
-                                :class="{
-                                    checked:
-                                        parseInt(pageCount) === parseInt(index)
-                                }"
-                                v-bind:style="{
-                                    height:
-                                        parseInt(wrapStyle.height) + 60 + 'px'
-                                }"
-                            >
-                                <div class="player-wrap-in">
-                                    <div class="player">
-                                        <div
-                                            class="text-window"
-                                            v-bind:style="wrapStyle"
-                                        >
-                                            <div
-                                                v-for="(txt,
-                                                index) in count.wordList"
-                                                v-bind:style="txt.pstyle"
-                                                :key="index"
-                                                class="txtp-wrap"
-                                            >
-                                                <p class="txtp">
-                                                    {{ txt.wc }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p class="delete-btn">
-                                        <span @click.stop="delPage(index)">
-                                            <i class="el-icon-delete"></i>
-                                        </span>
-                                    </p>
-                                    <p class="player-index">
-                                        {{ parseInt(index) + 1 }}
-                                    </p>
-                                </div>
-
+            <div
+                class="playlist-wrap"
+                :style="{
+                    height: inFrameHeight
+                }"
+            >
+                <div class="windows-wrap-in">
+                    <div
+                        class="player-wrap"
+                        v-for="(count, index) in pageList"
+                        :key="index"
+                        @click="changePage(index)"
+                        :class="{
+                            checked: parseInt(pageCount) === parseInt(index)
+                        }"
+                        v-bind:style="{
+                            height: parseInt(wrapStyle.height) + 60 + 'px'
+                        }"
+                    >
+                        <div class="player-wrap-in">
+                            <div class="player">
                                 <div
-                                    class="play-insert"
-                                    @click="addPage(index)"
+                                    class="text-window"
+                                    v-bind:style="wrapStyle"
                                 >
-                                    <p class="insert-wrap">
-                                        <i class="icon-add"></i>
-                                    </p>
-                                </div>
-                            </div>
-                            <div
-                                class="player-wrap"
-                                v-bind:style="{
-                                    height:
-                                        parseInt(wrapStyle.height) + 60 + 'px'
-                                }"
-                                @click="addPage"
-                            >
-                                <div class="player-wrap-in">
-                                    <div class="player">
-                                        <div
-                                            class="add-btn"
-                                            v-bind:style="{
-                                                height:
-                                                    parseInt(wrapStyle.height) +
-                                                    40 +
-                                                    'px'
-                                            }"
-                                        >
-                                            <div
-                                                class="text-window add-window"
-                                                v-bind:style="wrapStyle"
-                                            >
-                                                <i class="icon-add"></i>
-                                            </div>
-                                        </div>
+                                    <div
+                                        v-for="(txt, index) in count.wordList"
+                                        v-bind:style="txt.pstyle"
+                                        :key="index"
+                                        class="txtp-wrap"
+                                    >
+                                        <p class="txtp">
+                                            {{ txt.wc }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
+                            <p class="delete-btn">
+                                <span @click.stop="delPage(index)">
+                                    <i class="el-icon-delete"></i>
+                                </span>
+                            </p>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div class="cms-edit-main-bottom">
-                <div class="edit-tools">
-                    <section class="tools-btn">
-                        <div>
-                            <span>字体：</span>
-                            <select
-                                v-model="textInfo.fontFamily"
-                                @change="resetTextInfo"
-                            >
-                                <option value="">-字体-</option>
-                                <option
-                                    v-for="({ k, v }, index) in dirFontFamily"
-                                    :value="k"
-                                    :key="index"
-                                    >{{ v }}</option
-                                >
-                            </select>
-                        </div>
-                        <div>
-                            <span>字号：</span>
-                            <select
-                                v-model="textInfo.fontSize"
-                                @change="resetTextInfo"
-                            >
-                                <option value="">-字号-</option>
-                                <option
-                                    v-for="({ k, v }, index) in dirFontSize"
-                                    :value="k"
-                                    :key="index"
-                                    >{{ v }}px</option
-                                >
-                            </select>
-                        </div>
-                        <div>
-                            <span>颜色：</span>
-                            <select
-                                v-model="textInfo.color"
-                                @change="resetTextInfo"
-                            >
-                                <option value="">-颜色-</option>
-                                <option
-                                    v-for="({ k, v }, index) in dirColor"
-                                    :value="k"
-                                    :key="index"
-                                    >{{ v }}</option
-                                >
-                            </select>
-                        </div>
-                        <div>
-                            <span>出字方式：</span>
-                            <select
-                                v-model="textInfo.display"
-                                @change="resetTextInfo"
-                            >
-                                <option value="">-显示方式-</option>
-                                <option
-                                    v-for="({ k, v }, index) in dirMode"
-                                    :value="k"
-                                    :key="index"
-                                    >{{ v }}</option
-                                >
-                            </select>
-                        </div>
-                        <div>
-                            <span>停留时间：</span>
-                            <select
-                                v-model="textInfo.interval"
-                                @change="resetTextInfo"
-                            >
-                                <option value="">-时间间隔-</option>
-                                <option
-                                    v-for="({ k, v }, index) in dirDelay"
-                                    :value="k"
-                                    :key="index"
-                                    >{{ v }}</option
-                                >
-                            </select>
-                        </div>
-                    </section>
-                    <section class="tools-text">
-                        <textarea v-model="txt"></textarea>
-                    </section>
-                </div>
-                <div class="edit-convenience">
-                    <div class="tools-header">
-                        <span>快捷填充：</span>
-                        <div>
-                            <button class="p-button" type="round" size="mini">
-                                <i class="el-icon-document-copy"></i>
-                                <span>模板</span>
-                            </button>
-                            <button class="p-button" type="round" size="mini">
-                                <i class="el-icon-time"></i>
-                                <span>历史发布</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="tools-header">
-                        <span>快捷操作：</span>
-                        <div>
-                            <button class="p-button" type="round" size="mini">
-                                <i class="icon-custom icon-clean"></i>
-                                <span>清空</span>
-                            </button>
-                            <button
-                                class="p-button"
-                                type="round"
-                                size="mini"
-                                @click="resetCmsData"
-                                v-if="
-                                    JSON.parse(this.pageList4Reset).itemList
-                                        .length > pageCount
-                                "
-                            >
-                                <i class="icon-custom icon-reset"></i>
-                                <span>重置</span>
-                            </button>
-                        </div>
-                    </div>
+                    <!-- 用于填补单数情报板带来的样式问题 -->
+                    <div
+                        class="player-wrap"
+                        v-bind:style="{
+                            height: parseInt(wrapStyle.height) + 60 + 'px'
+                        }"
+                        v-if="pageList.length % 2 === 1"
+                    ></div>
                 </div>
             </div>
         </section>
@@ -375,11 +126,12 @@ export default {
             visible: false,
             sendStatusBtn: false,
             newCmslist: [],
-            multipleSelection: [],
             remixModelList: [],
             data: {},
             sendHistory: [],
-            inFrameHeight: "0px"
+            sendTimeout: {},
+            inFrameHeight: "0px",
+            sendFlag: true
         }
     },
     props: {
@@ -387,35 +139,13 @@ export default {
             type: String
         }
     },
-    created() {},
+    components: {
+        EditDynamic: () =>
+            import(/* webpackChunkName: "cms" */ "./_dynamiclink")
+    },
     computed: {
         ...mapState({
             cmsModelList: state => state.cms.cmsModelList,
-            dirColor: state =>
-                Object.entries(state.cms.directionColor).map(([k, v]) => ({
-                    k,
-                    v
-                })),
-            dirFontFamily: state =>
-                Object.entries(state.cms.directionFontFamily).map(([k, v]) => ({
-                    k,
-                    v
-                })),
-            dirFontSize: state =>
-                Object.entries(state.cms.directionFontSize).map(([k, v]) => ({
-                    k,
-                    v
-                })),
-            dirMode: state =>
-                Object.entries(state.cms.directionMode).map(([k, v]) => ({
-                    k,
-                    v
-                })),
-            dirDelay: state =>
-                Object.entries(state.cms.directionDelay).map(([k, v]) => ({
-                    k,
-                    v
-                })),
             dirShowColor: state => state.cms.directionShowColor,
             dirShowFontFamily: state => state.cms.directionShowFontFamily,
             dirShowFontSize: state => state.cms.directionFontSize,
@@ -425,27 +155,30 @@ export default {
             cmsMap: state => state.cms.cmsMap,
             statusMap: state => state.cms.statusMap,
             cmsId: state => state.cms.cmsId,
-            sendBackList: state => state.cms.sendBackList
+            sendBackList: state => state.cms.sendBackList,
+            editTextInfo: state => state.cms.editTextInfo,
+            editTxt: state => state.cms.editTxt,
+            multipleSelection: state => state.cms.multipleSelection,
+            isConnected: state => state.commonTools.socket.isConnected
         }),
         userId: () => JSON.parse(window.localStorage.getItem("users")).userId
     },
-    mounted() {},
     methods: {
         resetFrameHeight() {
             if (document.body.clientWidth >= 1660) {
                 this.asideWidth = "360px"
                 this.inFrameHeight =
-                    parseInt(this.frameheight) - 80 - 210 + "px"
+                    parseInt(this.frameheight) - 60 - 24 * 2 + "px"
             } else {
                 this.asideWidth = "240px"
                 this.inFrameHeight =
-                    parseInt(this.frameheight) - 80 - 172 + "px"
+                    parseInt(this.frameheight) - 60 - 24 * 2 + "px"
             }
         },
         remixInfos() {
             this.data = this.devMap[this.cmsId]
             this.pageCount = 0
-            this.multipleSelection = []
+            // this.multipleSelection = []
             this.sendStatusBtn = false
             this.pageData = { ...this.data }
             let cms = {}
@@ -458,9 +191,14 @@ export default {
             this.pageList = [...this.pageType.itemList]
             this.pageList4Reset = cms.data
             this.remixPageList()
+            this.resetInfos()
+        },
+        resetInfos() {
             this.setPageInfos()
             this.setPageStyle()
             this.setTxtArr()
+            this.$store.commit("setTextInfo", this.textInfo)
+            this.$store.commit("setTxt", this.txt)
         },
         haveEmptyPlaylist(data) {
             const emptyPlaylist = {
@@ -536,14 +274,11 @@ export default {
             data.map(page => (this.txt += page.wc + "\n"))
         },
         resetTxt() {
-            // if (this.pageCount === null) {
-            //     return
-            // }
             this.txtArr = []
             const txtArr = this.txt.split("\n")
             for (let i = 0; i < txtArr.length; i++) {
-                const txt = txtArr[i].replace(/(^\s*)|(\s*$)/g, "")
-                if (txt.length === 0) {
+                txtArr[i] = txtArr[i].replace(/(^\s*)|(\s*$)/g, "")
+                if (txtArr[i].length === 0) {
                     txtArr.splice(i, 1)
                     i--
                 }
@@ -559,7 +294,6 @@ export default {
         },
         saveCmsStyleChange() {
             const page = this.pageList[this.pageCount]
-
             page.delay = this.textInfo.interval
             page.fc = this.textInfo.color
             page.fn = this.textInfo.fontFamily
@@ -615,6 +349,9 @@ export default {
                     page.wordList.length - this.txtArr.length
                 )
             }
+            const _list = this.pageList[this.pageCount].wordList
+            const _newlist = [..._list]
+            this.$set(this.pageList[this.pageCount], "wordList", _newlist)
         },
         changePage(index) {
             this.pageCount = +index
@@ -653,6 +390,9 @@ export default {
             this.setPageStyle()
             this.setTxtArr()
         },
+        addToBox() {
+            this.$store.commit("setEditDynamicLink", "AddToBox")
+        },
         changeStyle(item) {
             return { "background-color": this.dirShowColor[item] }
         },
@@ -670,10 +410,32 @@ export default {
                 }
             })
         },
-        handleSelectionChange(val) {
-            this.multipleSelection = val
-        },
         sendCmsList() {
+            if (!this.beforeSendCheckStatus()) {
+                return
+            }
+            this.resetInfos()
+            const pageList = this.beforeSendRemixPageList()
+            const sendArr = this.beforeSendRemixSendArr(pageList)
+            this.$store.commit("setEditDynamicLink", "SendResultBox")
+            // clear something
+            this.$store.commit("CleanSendBack")
+            this.$store.commit("cleanSendIds")
+            //
+            this.sendFlag = false
+            this.$store
+                .dispatch("postCmsInfos", sendArr)
+                .then(res => {
+                    this.sendingCallBack(res)
+                    this.$store.commit("setSendHistory", this.sendHistory)
+                })
+                .catch(res => {
+                    this.sendingFailure(res)
+                })
+            this.sendStart()
+            this.$store.commit("setSendHistory", this.sendHistory)
+        },
+        beforeSendRemixPageList() {
             const pageList = JSON.parse(JSON.stringify(this.pageList))
             pageList.forEach(page => {
                 page.delay = parseInt(page.delay)
@@ -683,9 +445,12 @@ export default {
                     delete word.pstyle
                 })
             })
+            return pageList
+        },
+        beforeSendRemixSendArr(pageList) {
+            const sendArr = []
             const multipleSelection = [...this.multipleSelection]
             multipleSelection.unshift({ ...this.pageData })
-            const sendArr = []
             this.sendHistory = []
             multipleSelection.forEach(page => {
                 const sendData = {
@@ -706,24 +471,74 @@ export default {
                     cmsId: page.orgId + "×" + page.deviceId,
                     cmsName: this.devMap[page.orgId + "×" + page.deviceId]
                         .stationInfo,
-                    finishStatus: "",
-                    processStatus: "wait",
-                    active: 0
+                    processStatus: ""
                 })
             })
-            this.sendStatusBtn = true
-            this.$store.dispatch("postCmsInfos", sendArr).then(res => {
-                this.sendHistory.forEach(send => {
-                    send.finishStatus = "success"
-                    send.processStatus = "wait"
-                    send.active = 2
-                })
-            })
-            this.$store.commit("CleanSendBack")
+            return sendArr
+        },
+        beforeSendCheckStatus() {
+            let checkResult = true
+            if (!this.sendFlag) {
+                alert("请等待本次发布流程结束后，再尝试。")
+                checkResult = false
+            }
+            if (this.isConnected !== true) {
+                alert("服务器断开！")
+                checkResult = false
+            }
+            return checkResult
+        },
+        sendStart() {
             this.sendHistory.forEach(send => {
-                send.finishStatus = "success"
-                send.processStatus = "wait"
-                send.active = 1
+                send.processStatus = "开始下发"
+            })
+        },
+        sendingCallBack(res) {
+            this.sendHistory.forEach(send => {
+                if (send.processStatus === "开始下发") {
+                    if (res.resultCode === "100") {
+                        send.processStatus = "发送中..."
+                        this.$set(this.sendTimeout, send.cmsId, "")
+                        this.sendTimeout[send.cmsId] = setTimeout(() => {
+                            send.processStatus = "下发超时！"
+                        }, 10000)
+                    } else if (res.status) {
+                        if ([500, 504].includes(res.status)) {
+                            send.processStatus = "下发失败，服务器出错！"
+                        }
+                    } else {
+                        send.processStatus = "下发失败！"
+                    }
+                }
+            })
+        },
+        sendingFailure(res) {
+            this.sendHistory.forEach(send => {
+                if (send.processStatus === "开始下发") {
+                    send.processStatus = "下发失败！"
+                }
+                this.$store.commit("setSendFailureIds", send.cmsId)
+            })
+        },
+        uploadSendSteps() {
+            this.sendBackList.forEach(b => {
+                for (const s of this.sendHistory) {
+                    if (s.cmsId === b.id) {
+                        clearTimeout(this.sendTimeout[s.cmsId])
+                        delete this.sendTimeout[s.cmsId]
+                        if (Object.keys(this.sendTimeout).length === 0) {
+                            this.sendFlag = true
+                        }
+                        s.processStatus = b.returnMessage
+                        if (b.returnCode === "000000") {
+                            this.$store.commit("setSendSuccessIds", [b.id])
+                        }
+                        if (b.returnCode === "111111") {
+                            this.$store.commit("setSendFailureIds", [b.id])
+                        }
+                        break
+                    }
+                }
             })
         },
         resetAllCmsData() {
@@ -740,21 +555,15 @@ export default {
             this.setPageStyle()
             this.setTxtArr()
         },
-        uploadSendSteps() {
-            const blist = this.sendBackList.map(s => s.id)
-            this.sendHistory.forEach(send => {
-                if (blist.includes(send.cmsId)) {
-                    send.finishStatus = "success"
-                    send.active = 3
-                }
-            })
-        },
         sendStatusShow() {
             if (this.sendHistory.length === 0) {
                 this.sendStatusBtn = false
                 return
             }
             this.sendStatusBtn = !this.sendStatusBtn
+        },
+        cleanMultipleSelection() {
+            this.$store.commit("setMultipleSelection", [])
         },
 
         // old↓
@@ -782,6 +591,9 @@ export default {
             })
         }
     },
+    beforeDestroy() {
+        this.cleanMultipleSelection()
+    },
     watch: {
         cmsId: {
             handler(val) {
@@ -790,33 +602,25 @@ export default {
             },
             immediate: true
         },
-        txt: {
+        editTxt: {
             handler(val, oldval) {
+                this.txt = val
                 this.resetTxt(val, oldval)
-            },
-            immediate: true
+            }
         },
-        textInfo: {
-            handler(val, oldval) {
-                this.resetTextInfo(val, oldval)
+        editTextInfo: {
+            handler(val) {
+                this.textInfo = { ...val }
+                this.resetTextInfo()
             },
             deep: true
         },
         pageCount: {
             handler() {
-                this.setPageInfos()
-                this.setPageStyle()
-                this.setTxtArr()
+                this.resetInfos()
             },
             immediate: true
         },
-        // cmsList: {
-        //     handler(val) {
-        //         this.setModelList(val)
-        //     },
-        //     immediate: true,
-        //     deep: true
-        // },
         sendBackList: {
             handler() {
                 this.uploadSendSteps()
@@ -858,31 +662,33 @@ $ibc-r: 255;
 $ibc-g: 255;
 $ibc-b: 255;
 .cms-edit-main-inwrap {
-    // background-image: url("~@/assets/cms/cmsbgp.webp");
-    background-size: 100%;
     flex-grow: 1;
-    border-top-left-radius: 5px;
+    // border-top-left-radius: 5px;
+    // border-bottom-left-radius: 5px;
+    border-radius: 5px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     > header {
-        height: 80px;
+        height: 60px;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
         background-color: rgba($wbc-r, $wbc-g, $wbc-b, $wbc-a);
-        .in-header-top {
-            height: 40px;
+        .in-header-left {
+            height: 100%;
             display: flex;
             align-items: center;
-
-            letter-spacing: 2px;
-            padding: 0 12px;
+            padding: 0 24px;
             > p {
                 margin-right: 8px;
-                color: $header-text-color;
+                color: $frame-text-color;
+                font-weight: 600;
                 font-size: 18px;
             }
         }
-        .in-header-bottom {
+        .in-header-right {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -912,462 +718,259 @@ $ibc-b: 255;
         background-color: rgba($wbc-r, $wbc-g, $wbc-b, $wbc-a);
         display: flex;
         flex-direction: column;
-        .cms-edit-main-top {
-            flex-grow: 1;
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            .playlist-wrap {
-                flex-grow: 1;
+        .playlist-wrap {
+            overflow-y: auto;
+
+            .windows-wrap-in {
+                width: 86%;
+                @media screen and (max-width: 1660px) {
+                    width: 96%;
+                }
                 display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
+                flex-direction: row;
+                justify-content: space-evenly;
                 align-items: center;
-                overflow-y: auto;
+                flex-wrap: wrap;
+                padding: 12px;
+                margin: 0 auto;
 
-                .playlist-wrap-in {
-                    width: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: flex-start;
-                    align-items: center;
-
-                    .windows-wrap-in {
-                        width: 80%;
+                .player-wrap {
+                    // width: 45%;
+                    width: 386px;
+                    position: relative;
+                    transition: all 240ms ease;
+                    margin-top: 24px;
+                    min-height: 134px;
+                    @media screen and (max-width: 1660px) {
+                        margin-top: 12px;
+                    }
+                    &:nth-of-type(odd) {
+                        margin-right: 24px;
                         @media screen and (max-width: 1660px) {
-                            width: 96%;
                         }
-                        display: flex;
-                        flex-direction: row;
-                        justify-content: flex-start;
-                        align-items: center;
-                        flex-wrap: wrap;
-                        padding: 12px;
+                    }
+                    @media screen and (max-width: 1660px) {
+                        &:nth-of-type(even) {
+                            // margin-right: 0px;
+                        }
+                    }
 
-                        .player-wrap {
-                            width: 45%;
-                            min-width: 384px;
-                            min-height: 80px;
-                            position: relative;
-                            transition: all 240ms ease;
-                            margin-top: 22px;
-                            min-height: 134px;
-                            @media screen and (max-width: 1660px) {
-                                margin-top: 12px;
-                            }
-                            &:nth-of-type(odd) {
-                                margin-left: 5%;
-                                @media screen and (max-width: 1660px) {
-                                    margin-left: 2%;
-                                }
-                            }
-                            @media screen and (max-width: 1660px) {
-                                &:nth-of-type(even) {
-                                    margin-left: 4px;
-                                }
-                            }
-
-                            .player-wrap-in {
-                                position: absolute;
-                                width: 380px;
-                                height: 100%;
-                                margin: auto;
-                                top: 0;
-                                bottom: 0;
-                                left: 0;
-                                right: 0;
-                                border: 1px solid $border-color;
-                                overflow: hidden;
-                                border-radius: 6px;
-                                box-shadow: 0 0 18px rgba(0, 0, 0, 0.1);
-                                &:hover {
-                                    border: 1px solid
-                                        rgba($hc-r, $hc-g, $hc-b, 0.3);
-                                    box-shadow: 0 0 12px
-                                        rgba($hc-r, $hc-g, $hc-b, 0.2);
-                                    transition: all $transition-time ease;
-                                    .delete-btn {
-                                        opacity: 1;
-                                        width: 50px;
-                                        transition: all $transition-time ease;
-                                    }
-                                }
-                                &:hover ~ .play-insert {
-                                    z-index: 9;
-                                    .icon-add {
-                                        background-color: rgba(
-                                            $hc-r,
-                                            $hc-g,
-                                            $hc-b,
-                                            1
-                                        );
-                                    }
-                                }
-                            }
-
-                            .play-sort {
-                                display: block;
-                                width: 40px;
-                                height: 40px;
-                                position: absolute;
-                                border: 1px solid #777;
-                                border-radius: 100%;
-                                box-shadow: 0 0 10px rgba(3, 3, 3, 0.1);
-                                box-sizing: border-box;
-                                > i {
-                                    display: block;
-                                    mask-size: 100%;
-                                    width: 100%;
-                                    height: 100%;
-                                    background-color: #ccc;
-                                }
-                            }
-                            .player-index {
-                                border: 2px solid $border-color;
-                                width: 30px;
-                                height: 30px;
-                                border-radius: 100%;
-                                text-align: center;
-                                line-height: 26px;
-                                font-size: 24px;
-                                font-weight: 600;
-                                color: $border-color;
-                                margin: 8px 0 0 16px;
-                                box-sizing: border-box;
-                                position: relative;
-                                z-index: 3;
-                            }
+                    .player-wrap-in {
+                        position: absolute;
+                        width: 380px;
+                        height: 100%;
+                        margin: auto;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        border: 1px solid $border-color;
+                        overflow: hidden;
+                        border-radius: 6px;
+                        // box-shadow: 0 0 18px rgba(0, 0, 0, 0.1);
+                        &:hover {
+                            border: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
+                            box-shadow: 0 1px 2px -2px rgba($hc-r, $hc-g, $hc-b, 0.16),
+                                0 3px 6px 0 rgba($hc-r, $hc-g, $hc-b, 0.12),
+                                0 5px 12px 4px rgba($hc-r, $hc-g, $hc-b, 0.09);
+                            transition: all $transition-time ease;
                             .delete-btn {
-                                position: absolute;
-                                z-index: 9;
-                                top: 0;
-                                right: 0;
-                                width: 0px;
-                                opacity: 0;
-                                height: 100%;
-                                display: flex;
-                                justify-content: center;
-                                align-items: flex-end;
+                                opacity: 1;
+                                width: 50px;
                                 transition: all $transition-time ease;
-                                span {
-                                    display: block;
-                                    position: relative;
-                                    width: 24px;
-                                    height: 24px;
-                                    border-radius: 100%;
-                                    margin-bottom: 12px;
-                                    margin-right: 10px;
-                                    cursor: pointer;
-                                    i {
-                                        display: block;
-                                        position: absolute;
-                                        width: 100%;
-                                        height: 100%;
-                                        font-size: 24px;
-                                        color: #aaa;
-                                        font-weight: 300;
-                                        transition: all 500ms ease;
-                                    }
-                                    &:hover {
-                                        i {
-                                            color: rgb(240, 50, 50);
-                                            transition: all $transition-time
-                                                ease;
-                                        }
-                                    }
-                                }
                             }
-                            .player {
-                                position: absolute;
-                                opacity: 0.9;
-                                z-index: 1;
-                                top: 0;
-                                bottom: 0;
-                                left: 0;
-                                right: 0;
-                                margin: 0;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                background-color: rgba(
-                                    $ibc-r,
-                                    $ibc-g,
-                                    $ibc-b,
-                                    1
-                                );
+                        }
+                        &:hover ~ .play-insert {
+                            z-index: 9;
+                            .icon-add {
+                                background-color: rgba($hc-r, $hc-g, $hc-b, 1);
+                            }
+                        }
+                    }
 
-                                .text-window {
-                                    position: relative;
-                                    background-color: rgb(54, 54, 54);
-                                    padding: 4px;
-                                    .txtp-wrap {
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                        .txtp {
-                                            height: 100%;
-                                        }
-                                    }
-                                }
-                                .add-window {
-                                    background-color: rgba(255, 255, 255, 1);
-                                }
-                            }
-                            .play-insert {
+                    // .play-sort {
+                    //     display: block;
+                    //     width: 40px;
+                    //     height: 40px;
+                    //     position: absolute;
+                    //     border: 1px solid #777;
+                    //     border-radius: 100%;
+                    //     box-shadow: 0 0 10px rgba(3, 3, 3, 0.1);
+                    //     box-sizing: border-box;
+                    //     > i {
+                    //         display: block;
+                    //         mask-size: 100%;
+                    //         width: 100%;
+                    //         height: 100%;
+                    //         background-color: #ccc;
+                    //     }
+                    // }
+                    // .player-index {
+                    //     border: 2px solid $border-color;
+                    //     width: 30px;
+                    //     height: 30px;
+                    //     border-radius: 100%;
+                    //     text-align: center;
+                    //     line-height: 26px;
+                    //     font-size: 24px;
+                    //     font-weight: 600;
+                    //     color: $border-color;
+                    //     margin: 8px 0 0 16px;
+                    //     box-sizing: border-box;
+                    //     position: relative;
+                    //     z-index: 3;
+                    // }
+                    .delete-btn {
+                        position: absolute;
+                        z-index: 9;
+                        top: 0;
+                        right: 0;
+                        width: 0px;
+                        opacity: 0;
+                        height: 100%;
+                        display: flex;
+                        justify-content: center;
+                        align-items: flex-end;
+                        transition: all $transition-time ease;
+                        span {
+                            display: block;
+                            position: relative;
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 100%;
+                            margin-bottom: 12px;
+                            margin-right: 10px;
+                            cursor: pointer;
+                            i {
+                                display: block;
                                 position: absolute;
-                                width: 30px;
-                                height: 30px;
-                                top: 0;
-                                bottom: 0;
-                                margin: auto;
-                                left: -17px;
-                                display: flex;
-                                justify-content: flex-end;
-                                align-items: center;
-                                .insert-wrap {
-                                    width: 30px;
-                                    height: 30px;
-                                    border-radius: 100%;
-                                    .icon-add {
-                                        display: block;
-                                        width: 100%;
-                                        height: 100%;
-                                        mask-size: 100%;
-                                        mask-repeat: no-repeat;
-                                        background-color: rgba(
-                                            222,
-                                            222,
-                                            222,
-                                            1
-                                        );
-                                        cursor: pointer;
-                                    }
-                                }
-                                &:hover {
-                                    z-index: 9;
-                                    .icon-add {
-                                        background-color: rgba(
-                                            $hc-r,
-                                            $hc-g,
-                                            $hc-b,
-                                            1
-                                        );
-                                    }
-                                }
+                                width: 100%;
+                                height: 100%;
+                                font-size: 24px;
+                                color: #aaa;
+                                font-weight: 300;
+                                transition: all 500ms ease;
                             }
-                            &.checked {
-                                .player {
-                                    transition: all $transition-time ease;
-                                    opacity: 1;
-                                }
-                                .player-wrap-in {
-                                    border: 1px solid
-                                        rgba($hc-r, $hc-g, $hc-b, 0.3);
-                                    box-shadow: 0 0 12px
-                                        rgba($hc-r, $hc-g, $hc-b, 0.2);
-                                    transition: all $transition-time ease;
-                                }
-                            }
-                            &.checked {
-                                .player-wrap-in {
-                                    // width: 378px;
-                                    box-shadow: 0 0 12px
-                                        rgba($hc-r, $hc-g, $hc-b, 0.3);
-                                    border: 1px solid
-                                        rgba($hc-r, $hc-g, $hc-b, 0.3);
-                                    transition: all $transition-time ease;
-                                }
-                                .player-index {
-                                    border-color: rgba(
-                                        $hc-r,
-                                        $hc-g,
-                                        $hc-b,
-                                        0.9
-                                    );
-                                    background-color: rgba(
-                                        $hc-r,
-                                        $hc-g,
-                                        $hc-b,
-                                        0.5
-                                    );
-                                    color: #fff;
-                                    text-shadow: 2px 2px 0px
-                                        rgba($hc-r, $hc-g, $hc-b, 1);
+                            &:hover {
+                                i {
+                                    color: rgb(240, 50, 50);
                                     transition: all $transition-time ease;
                                 }
                             }
                         }
                     }
-                    .add-btn {
-                        width: 90%;
-                        height: 140px;
+                    .player {
+                        position: absolute;
+                        opacity: 0.9;
+                        z-index: 1;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        margin: 0;
                         display: flex;
                         justify-content: center;
                         align-items: center;
-                        transition: all $transition-time ease;
+                        background-color: rgba($ibc-r, $ibc-g, $ibc-b, 1);
+
                         .text-window {
                             position: relative;
-                            background-color: rgba($ibc-r, $ibc-g, $ibc-b, 0.3);
+                            background-color: rgb(54, 54, 54);
                             padding: 4px;
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            i {
-                                width: 60px;
-                                height: 60px;
-                                font-size: 60px;
-                                font-weight: 100;
-                                mask-size: 100%;
-                                background-color: #ddd;
-                                transition: all 300ms ease;
+                            .txtp-wrap {
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                .txtp {
+                                    height: 100%;
+                                }
                             }
                         }
+                        .add-window {
+                            background-color: rgba(255, 255, 255, 1);
+                        }
                     }
-                }
-            }
-        }
+                    // .play-insert {
+                    //     position: absolute;
+                    //     width: 30px;
+                    //     height: 30px;
+                    //     top: 0;
+                    //     bottom: 0;
+                    //     margin: auto;
+                    //     left: -17px;
+                    //     display: flex;
+                    //     justify-content: flex-end;
+                    //     align-items: center;
+                    //     .insert-wrap {
+                    //         width: 30px;
+                    //         height: 30px;
+                    //         border-radius: 100%;
+                    //         .icon-add {
+                    //             display: block;
+                    //             width: 100%;
+                    //             height: 100%;
+                    //             mask-size: 100%;
+                    //             mask-repeat: no-repeat;
+                    //             background-color: rgba(222, 222, 222, 1);
+                    //             cursor: pointer;
+                    //         }
+                    //     }
+                    //     &:hover {
+                    //         z-index: 9;
+                    //         .icon-add {
+                    //             background-color: rgba($hc-r, $hc-g, $hc-b, 1);
+                    //         }
+                    //     }
+                    // }
 
-        .cms-edit-main-bottom {
-            position: relative;
-            width: 100%;
-            height: 210px;
-            @media screen and (max-width: 1660px) {
-                height: 172px;
-            }
-            display: flex;
-
-            .edit-tools {
-                flex-grow: 1;
-                position: relative;
-                min-width: 400px;
-                height: 100%;
-                border-top: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
-                border-right: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
-                box-sizing: border-box;
-                background-color: rgba($hc-r, $hc-g, $hc-b, 0.2);
-                overflow: hidden;
-                > header {
-                    position: relative;
-                    z-index: 11;
-                    display: flex;
-                    justify-content: space-evenly;
-                    flex-direction: column;
-                    align-items: center;
-                    height: 72px;
-                    border-bottom: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
-                    box-sizing: border-box;
-                    > div.tools-header {
-                        display: flex;
-                        justify-content: flex-start;
-                        align-items: center;
-                        width: 100%;
-                        > * {
-                            margin-left: 12px;
+                    &.checked {
+                        .player {
+                            transition: all $transition-time ease;
+                            opacity: 1;
                         }
-                        > span {
-                            letter-spacing: 0;
-                            font-size: 14px;
-                            color: #999;
+                        .player-wrap-in {
+                            box-shadow: 0 1px 2px -2px rgba($hc-r, $hc-g, $hc-b, 0.16),
+                                0 3px 6px 0 rgba($hc-r, $hc-g, $hc-b, 0.12),
+                                0 5px 12px 4px rgba($hc-r, $hc-g, $hc-b, 0.09);
+                            border: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
+                            transition: all $transition-time ease;
                         }
-                    }
-                }
-                section.tools-btn {
-                    position: relative;
-                    z-index: 11;
-                    height: 48px;
-                    display: flex;
-                    flex-direction: column;
-                    flex-wrap: wrap;
-                    @media screen and (max-width: 1660px) {
-                        height: 72px;
-                    }
-                    > div {
-                        width: 20%;
-                        height: 48px;
-                        display: flex;
-                        align-items: center;
-                        @media screen and (max-width: 1660px) {
-                            width: 25%;
-                            height: 36px;
-                        }
-                        span {
-                            display: block;
-                            width: 80px;
-                            font-size: 15px;
-                            text-align: right;
-                        }
-                        select {
-                            flex-grow: 1;
-                            margin-right: 12px;
-                            height: 24px;
-                            font-size: 14px;
-                            color: #555;
-                            border: 1px solid #aaa;
-                            border-radius: 5px;
-                            // max-width: 100px;
-                            outline: none;
-                        }
-                    }
-                }
-                section.tools-text {
-                    position: relative;
-                    z-index: 11;
-                    height: 160px;
-                    width: 100%;
-                    display: flex;
-                    textarea {
-                        flex-grow: 1;
-                        position: relative;
-                        resize: none;
-                        border: none;
-                        outline: none;
-                        padding: 18px 36px;
-                        flex-basis: 100%;
-                        font-size: 16px;
-                        color: #333;
-                        background-color: rgba($hc-r, $hc-g, $hc-b, 0);
-                        border-top: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
-                        box-sizing: border-box;
-                        &:focus {
-                            background-color: rgba(255, 255, 255, 0.9);
+                        .player-index {
+                            border-color: rgba($hc-r, $hc-g, $hc-b, 0.9);
+                            background-color: rgba($hc-r, $hc-g, $hc-b, 0.5);
+                            color: #fff;
+                            text-shadow: 2px 2px 0px
+                                rgba($hc-r, $hc-g, $hc-b, 1);
+                            transition: all $transition-time ease;
                         }
                     }
                 }
             }
-
-            .edit-convenience {
-                @media screen and (max-width: 1660px) {
-                    width: 180px;
-                }
-                width: 300px;
-                background-color: rgba($hc-r, $hc-g, $hc-b, 0.2);
-                border-top: 1px solid rgba($hc-r, $hc-g, $hc-b, 0.3);
-                box-sizing: border-box;
-                .tools-header {
-                    @media screen and (max-width: 1660px) {
-                        flex-direction: column;
-                        height: 80px;
-                        align-items: flex-start;
-                        > * {
-                            margin-top: 10px;
-                        }
-                    }
-                    display: flex;
-                    height: 60px;
-                    align-items: center;
-                    > span {
-                        width: 80px;
-                        text-align: right;
-                    }
-                    > div {
-                        display: flex;
-                        align-items: center;
-                        > button {
-                            margin-left: 4px;
-                        }
-                    }
-                }
-            }
+            // .add-btn {
+            //     width: 90%;
+            //     height: 140px;
+            //     display: flex;
+            //     justify-content: center;
+            //     align-items: center;
+            //     transition: all $transition-time ease;
+            //     .text-window {
+            //         position: relative;
+            //         background-color: rgba($ibc-r, $ibc-g, $ibc-b, 0.3);
+            //         padding: 4px;
+            //         display: flex;
+            //         justify-content: center;
+            //         align-items: center;
+            //         i {
+            //             width: 60px;
+            //             height: 60px;
+            //             font-size: 60px;
+            //             font-weight: 100;
+            //             mask-size: 100%;
+            //             background-color: #ddd;
+            //             transition: all 300ms ease;
+            //         }
+            //     }
+            // }
         }
     }
 }

@@ -41,7 +41,8 @@ export default {
         return {
             lastlist: [],
             dialogStatus: false,
-            cmsGroupList: []
+            cmsGroupList: [],
+            selStatusList: []
         }
     },
     computed: {
@@ -51,8 +52,11 @@ export default {
             devMap: state => state.cms.devMap,
             cmsMap: state => state.cms.cmsMap,
             statusMap: state => state.cms.statusMap,
-            checkList: state => state.cms.checkList,
-            checkListEmpty: state => state.cms.checkListEmpty
+            statusDescMap: state => state.cms.statusDescMap,
+            checkList: state => state.cms.checkList[state.cms.listName],
+            checkListEmpty: state =>
+                state.cms.checkListEmpty[state.cms.listName],
+            listName: state => state.cms.listName
         })
     },
     components: {
@@ -63,27 +67,52 @@ export default {
     },
     methods: {
         remixCmsGroupList(...types) {
+            console.log(this.selStatusList)
             types.push("roadName")
             this.devInfoList.forEach(cms => {
-                let i = 0
-                const l = this.cmsGroupList.length
-                for (; i < l; i++) {
-                    if (this.cmsGroupList[i].title === cms.roadName) {
-                        if (!this.cmsGroupList[i].list.includes(cms.mapId)) {
-                            this.cmsGroupList[i].list.push(cms.mapId)
-                            break
+                if (
+                    (this.statusDescMap[cms.mapId] &&
+                        this.selStatusList.includes(
+                            this.statusDescMap[cms.mapId].desc
+                        )) ||
+                    this.selStatusList.length === 0
+                ) {
+                    let i = 0
+                    const l = this.cmsGroupList.length
+                    for (; i < l; i++) {
+                        if (this.cmsGroupList[i].title === cms.roadName) {
+                            if (
+                                !this.cmsGroupList[i].list.includes(cms.mapId)
+                            ) {
+                                this.cmsGroupList[i].list.push(cms.mapId)
+                                break
+                            }
                         }
                     }
-                }
-                if (i === l) {
-                    this.cmsGroupList.push({
-                        title: cms.roadName,
-                        list: [cms.mapId]
-                    })
+                    if (i === l) {
+                        this.cmsGroupList.push({
+                            title: cms.roadName,
+                            list: [cms.mapId]
+                        })
+                    }
                 }
             })
         },
         remixCheckList() {
+            const checkList = this.checkList
+            let _statusStr = ""
+            if (checkList.status) {
+                this.selStatusList = [...checkList.status]
+                delete checkList.status
+                this.selStatusList.forEach(str => {
+                    _statusStr += str
+                })
+                if (this.selStatusList.length > 1) {
+                    _statusStr = "(" + _statusStr + ")"
+                }
+            } else {
+                this.selStatusList = []
+            }
             if (!this.checkListEmpty) {
                 const _devList = [...this.devInfoList]
                 let _selStr = ""
@@ -91,7 +120,7 @@ export default {
                 _newDevList = _devList
                     .filter(dev => {
                         let f = true
-                        Object.entries(this.checkList).forEach(([k, v]) => {
+                        Object.entries(checkList).forEach(([k, v]) => {
                             f = f && v.includes(dev[k])
                         })
                         if (f) {
@@ -99,7 +128,7 @@ export default {
                         }
                     })
                     .map(dev => dev.mapId)
-                Object.entries(this.checkList).forEach(([k, v], index) => {
+                Object.entries(checkList).forEach(([k, v], index) => {
                     if (v.length > 1) {
                         _selStr += "("
                     }
@@ -114,11 +143,22 @@ export default {
                     }
                     if (
                         parseInt(index) + 1 <
-                        Object.entries(this.checkList).length
+                        Object.entries(checkList).length
                     ) {
                         _selStr += " - "
                     }
                 })
+                if (_statusStr !== "") {
+                    _selStr += " - "
+                }
+                _selStr += _statusStr
+                if (
+                    _newDevList &&
+                    _newDevList.length > 0 &&
+                    this.selStatusList.length > 0
+                ) {
+                    _newDevList = this.remixCheckListByStatus(_newDevList)
+                }
                 this.selStr = _selStr
                 this.cmsGroupList = []
                 this.cmsGroupList.push({
@@ -126,9 +166,25 @@ export default {
                     list: [..._newDevList]
                 })
             } else if (this.checkListEmpty) {
+                console.log("else")
                 this.cmsGroupList = []
                 this.remixCmsGroupList()
             }
+        },
+        remixCheckListByStatus(list) {
+            const filterList = []
+            list.forEach(dev => {
+                if (this.statusDescMap[dev]) {
+                    if (
+                        this.selStatusList.includes(
+                            this.statusDescMap[dev].desc
+                        )
+                    ) {
+                        filterList.push(dev)
+                    }
+                }
+            })
+            return filterList
         }
     },
     watch: {
@@ -147,8 +203,8 @@ export default {
         checkListEmpty: {
             handler(val) {
                 this.remixCheckList()
-            },
-            immediate: true
+            }
+            // immediate: true
         }
     }
 }
@@ -159,6 +215,9 @@ $btc-r: 7;
 $btc-g: 219;
 $btc-b: 219;
 .cms-frame {
+    padding: 16px 24px 24px;
+    background-color: #fff;
+    border-radius: 5px;
     > header {
         border-bottom: 1px solid #ddd;
         height: 32px;

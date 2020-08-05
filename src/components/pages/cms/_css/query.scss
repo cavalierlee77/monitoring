@@ -130,7 +130,8 @@ $border-color: #00b4d8;
             text-align: left;
             text-indent: 12px;
             transition: all $transition-time-query ease;
-            &:hover {
+            // &:hover,
+            &.checked {
                 color: $border-color;
                 font-size: 15px;
                 font-weight: 600;

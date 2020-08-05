@@ -9,7 +9,6 @@ import "../static/js/common.js"
 // websocket
 import VueNativeSocket from "vue-native-websocket"
 import proxy from "../src/store/constant/clouldConfig"
-
 Vue.config.productionTip = false
 
 export const that = new Vue({

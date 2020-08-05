@@ -1,15 +1,15 @@
 <template>
     <el-container class="cms-detail-wrap">
-        <el-header class="cms-detail-header-outwrap" height="40px">
+        <el-header class="cms-detail-header-outwrap" height="80px">
             <edit-header :title="title"></edit-header>
         </el-header>
         <el-container
             class="cms-detail-container-outwrap"
             v-bind:style="{ height: frameheight }"
         >
-            <el-aside :width="asideWidth">
+            <!-- <el-aside :width="asideWidth">
                 <edit-aside :secHei="parseInt(frameheight)"></edit-aside>
-            </el-aside>
+            </el-aside> -->
             <el-main class="cms-detail-main-outwrap">
                 <detail-main></detail-main>
             </el-main>
@@ -20,11 +20,11 @@
 <script>
 export default {
     created() {
-        if (document.body.clientWidth >= 1660) {
-            this.asideWidth = "360px"
-        } else {
-            this.asideWidth = "240px"
-        }
+        // if (document.body.clientWidth >= 1660) {
+        //     this.asideWidth = "360px"
+        // } else {
+        //     this.asideWidth = "240px"
+        // }
     },
     data() {
         return {
@@ -51,8 +51,7 @@ export default {
             this.frameheight =
                 parseFloat(this.clientHeight) -
                 parseFloat(this.headerHeight) -
-                parseFloat(this.frameHeight) -
-                20 +
+                parseFloat(this.frameHeight) +
                 "px"
         },
         load() {
@@ -93,11 +92,10 @@ $outwrap-borderline-color: #ddd;
         justify-content: space-between;
         align-items: center;
     }
-
     .cms-detail-main-outwrap {
         background-color: #ddd;
         display: flex;
-        padding: 8px 0 0 8px;
+        padding: 24px;
     }
 }
 </style>

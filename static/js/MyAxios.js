@@ -55,15 +55,17 @@ function apiAxios(method, url, params, success, failure) {
                     window.alert("错误: " + JSON.stringify(res.data.resultMsg))
                 }
             }
-            success(res.data)
+            if (success) {
+                success(res.data)
+            }
         })
         .catch(function(err) {
-            // const res = err.response
             if (err) {
-                // if (res.status === 302) {
-                //     that.$router.push("/")
-                // }
-                console.log(err)
+                if (failure) {
+                    failure(err.response)
+                } else {
+                    console.log(err.response)
+                }
             }
         })
 }

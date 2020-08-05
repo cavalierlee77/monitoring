@@ -16,7 +16,6 @@ const actions = {
     ...dialog.actions,
     ...commWebsocket.actions
 }
-console.log(state)
 export default {
     state,
     getters,

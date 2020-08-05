@@ -11,13 +11,13 @@ export default {
             g: "green"
         },
         directionFontFamily: {
-            s: "宋体",
             h: "黑体",
+            s: "宋体",
             k: "楷体"
         },
         directionShowFontFamily: {
-            s: "SimSun",
             h: "SimHei",
+            s: "SimSun",
             k: "KaiTi"
         },
         directionFontSize: {

@@ -30,7 +30,7 @@ button {
             transition: all $transition-time ease;
         }
         > i {
-            border-radius: 2em;
+            // border-radius: 2em;
             color: $btc-text;
             transition: all $transition-time ease;
         }
@@ -43,6 +43,22 @@ button {
 
         &[type="round"] {
             border-radius: 2em;
+        }
+
+        &[size="normal"] {
+            height: 34px;
+            line-height: 32px;
+            > span {
+                font-size: 16px;
+                font-weight: 500;
+            }
+
+            > i {
+                height: 24px;
+                width: 24px;
+                font-size: 24px;
+                margin: 5px 5px 0 -6px;
+            }
         }
 
         &[size="mini"] {

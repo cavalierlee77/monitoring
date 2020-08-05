@@ -1,40 +1,38 @@
 <template>
-    <div>
+    <div class="aa">
         <el-menu
             :default-active="onRoutes"
             class="el-menu-vertical-demo"
-            background-color="#00b4d8"
-            text-color="#fff"
-            active-text-color="#fff"
+            background-color="#001529"
+            text-color="rgba(255, 255, 255, 0.9)"
+            active-text-color="rgba(255, 208, 75, 1)"
             @open="handleOpen"
             @close="handleClose"
             @select="handleMenuItemClick"
             unique-opened
         >
-            <template v-for="menuItem in leftMenus">
-                <template v-if="menuItem.hasChild == false">
+            <template v-for="(menuItem, index) in leftMenus">
+                <template v-if="menuItem.hasChild === false">
                     <el-menu-item
-                        v-bind:index="menuItem.index"
-                        v-show="!menuItem.hot"
-                        :key="menuItem.index"
+                        v-if="menuItem.hot"
+                        :index="menuItem.index"
+                        :key="index"
                     >
                         <i v-bind:class="[menuItem.imgClass]"></i>
                         <span slot="title">{{ menuItem.title }}</span>
                     </el-menu-item>
                 </template>
                 <template v-else>
-                    <el-submenu
-                        v-bind:index="menuItem.index"
-                        :key="menuItem.index"
-                    >
+                    <el-submenu :key="index" :index="index.toString()">
                         <template slot="title">
                             <i v-bind:class="[menuItem.imgClass]"></i>
                             <span>{{ menuItem.title }}</span>
                         </template>
-                        <template v-for="subItem in menuItem.child">
+                        <template v-for="(subItem, subIndex) in menuItem.child">
                             <el-menu-item
-                                v-bind:index="subItem.index"
-                                :key="subItem.index"
+                                v-if="menuItem.hot && subItem.hot"
+                                :index="subItem.index"
+                                :key="subIndex"
                                 >{{ subItem.title }}</el-menu-item
                             >
                         </template>
@@ -61,7 +59,9 @@ export default {
         }
     },
     created() {},
-    mounted() {},
+    mounted() {
+        this.$router.push("/main/cms")
+    },
     computed: {
         onRoutes() {
             return this.$route.path.replace("/", "")
@@ -76,11 +76,11 @@ export default {
 <style scoped lang="scss">
 @import "../../../static/css/my-font-style.css";
 @import "@pages/cms/_css/commonStyle.scss";
-
 .el-menu-vertical-demo {
     height: 100%;
     /* margin-right: -1px; */
     background-color: $frame-aside;
+    border-right: none;
 }
 .barspan {
     color: red;

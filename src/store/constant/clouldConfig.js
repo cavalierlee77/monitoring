@@ -1,6 +1,10 @@
+// eslint-disable-next-line no-use-before-define
+// const _ipConfig = ipConfig.test
+// console.log(_ipConfig)
 module.exports = {
     pattern: "dev",
     // pattern: "prod",
+    // pattern: "local",
     proxy: {
         "/Monitor-Graph": {
             target: "http://10.21.2.33:80/",
@@ -21,11 +25,13 @@ module.exports = {
     },
     assetsPublicPath: {
         dev: "monitoring/",
-        prod: "Monitoring/"
+        prod: "Monitoring/",
+        local: "Monitoring/"
     },
     websocketPath: {
-        dev: "ws://10.21.2.33:8000/websocket/1231",
-        prod: "ws://192.168.1.20:8080/websocket/1231"
+        dev: "ws://10.21.2.33:8000/websocket/",
+        prod: "ws://15.64.168.35:8000/websocket/",
+        local: "ws://10.21.2.33:8000/websocket/"
     },
     axiosUrl: {
         dev: function(root, url) {
@@ -33,9 +39,17 @@ module.exports = {
         },
         prod: function(root, url) {
             if (url.includes("Monitor-Graph")) {
-                return "http://192.168.1.20:8888"
+                return "http://15.64.168.35:9090"
             } else if (url.includes("collsvr")) {
-                return "http://192.168.1.20:8080"
+                return "http://15.64.168.35:8000"
+            }
+            return root
+        },
+        local: function(root, url) {
+            if (url.includes("Monitor-Graph")) {
+                return "http://10.21.2.33:80"
+            } else if (url.includes("collsvr")) {
+                return "http://10.21.2.33:8000"
             }
             return root
         }

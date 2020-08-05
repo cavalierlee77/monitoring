@@ -12,7 +12,8 @@
             placeholder="请输入搜索内容"
             v-on:focus="checkFocus"
             v-on:blur="checkBlur"
-            @keyup.enter="selectFn"
+            @keyup="whichKeyup($event)"
+            @keydown="whichKeydown($event)"
             v-model="inputModel"
         />
         <div></div>
@@ -20,29 +21,40 @@
             <p
                 v-for="(dev, index) in resultArr"
                 :key="index"
-                @click.stop="checkId($event, dev.id)"
+                @click.stop="clickListFn($event, dev)"
+                :class="{ checked: index + 1 === defaultIndex }"
+                @mouseover="defaultIndex = index + 1"
+                @mouseout="defaultIndex = 0"
             >
-                {{ dev.name }}
+                {{ dev.show }}
             </p>
         </section>
     </div>
 </template>
 
 <script>
-import { mapState } from "vuex"
 export default {
     components: {},
     data() {
         return {
             checkflag: false,
             checkflagSub: false,
-            resultArr: [],
-            inputModel: ""
+            inputModel: "",
+            defaultIndex: 0,
+            temporary: 0
         }
     },
     props: {
         width: {
-            type: Number
+            type: Number,
+            default: () => 400
+        },
+        pressKeyFn: {
+            type: Function
+        },
+        resultArr: {
+            type: Array,
+            default: () => []
         }
     },
     methods: {
@@ -55,23 +67,18 @@ export default {
             }, 200)
         },
         selectFn() {
-            this.resultArr = []
-            this.devInfoList.forEach(dev => {
-                if (dev.deviceName.includes(this.inputModel)) {
-                    this.resultArr.push({
-                        name: dev.deviceName,
-                        id: dev.mapId
-                    })
-                }
-            })
+            this.defaultIndex = 0
+            this.temporary = 0
+            this.selectlist()
         },
-        checkId(e, id) {
+        selectlist() {
+            this.$emit("pressKeyFn", this.inputModel)
+        },
+        clickListFn(e, dev) {
             e.stopPropagation()
-        },
-        checkEmpty() {
-            if (this.inputModel === "") {
-                this.resultArr = []
-            }
+            this.$emit("pressKeyFn", {
+                clickList: this.resultArr[this.defaultIndex - 1]
+            })
         },
         checkArrEmpty() {
             if (this.resultArr.length > 0) {
@@ -79,17 +86,39 @@ export default {
             } else {
                 this.checkflagSub = false
             }
+        },
+        whichKeyup(ev) {
+            if (ev.keyCode === 38) {
+                this.temporary--
+            }
+            if (ev.keyCode === 40) {
+                this.temporary++
+            }
+            if (this.temporary < 0) {
+                this.temporary = this.resultArr.length
+            }
+            if (this.temporary > this.resultArr.length) {
+                this.temporary = 1
+            }
+            this.defaultIndex = this.temporary
+            if (ev.keyCode === 13) {
+                if (this.defaultIndex === 0) {
+                    this.$emit("pressKeyFn", this.inputModel)
+                } else {
+                    this.$emit("pressKeyFn", {
+                        clickList: this.resultArr[this.defaultIndex - 1]
+                    })
+                }
+            }
+        },
+        whichKeydown(ev) {
+            // console.log(ev.keyCode)
         }
-    },
-    computed: {
-        ...mapState({
-            devInfoList: state => state.cms.devInfoList
-        })
     },
     watch: {
         inputModel: {
             handler() {
-                this.checkEmpty()
+                this.selectFn()
             }
         },
         resultArr: {
