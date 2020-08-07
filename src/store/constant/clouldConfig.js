@@ -1,6 +1,3 @@
-// eslint-disable-next-line no-use-before-define
-// const _ipConfig = ipConfig.test
-// console.log(_ipConfig)
 module.exports = {
     pattern: "dev",
     // pattern: "prod",

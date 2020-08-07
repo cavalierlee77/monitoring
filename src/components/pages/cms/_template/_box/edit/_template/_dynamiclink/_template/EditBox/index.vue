@@ -84,6 +84,7 @@
                 </div>
             </section>
             <section class="tools-text">
+                <div class="textarea-tips">{{ tips }}</div>
                 <textarea v-model="editTxt"></textarea>
             </section>
         </div>
@@ -126,10 +127,10 @@ export default {
                     v
                 })),
             textInfo: state => state.cms.textInfo,
-            txt: state => state.cms.txt
+            txt: state => state.cms.txt,
+            tips: state => state.cms.editTextareaTips
         })
     },
-    mounted() {},
     methods: {
         resetTextInfo() {
             this.$store.commit("setEditTextInfo", this.textInfo)
@@ -279,7 +280,16 @@ export default {
             width: auto;
             margin: 0 32px;
             display: flex;
+            flex-direction: column;
             margin-top: 36px;
+            .textarea-tips {
+                width: 100%;
+                padding: 16px 0 0px;
+                font-size: 14px;
+                font-weight: 600;
+                color: orangered;
+                height: 32px;
+            }
             textarea {
                 flex-grow: 1;
                 position: relative;

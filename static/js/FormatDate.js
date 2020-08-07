@@ -1,5 +1,6 @@
+// eslint-disable-next-line no-extend-native
 Date.prototype.format = function(format) {
-    if (this == "Invalid Date") return ""
+    if (this === "Invalid Date") return ""
     var args = {
         "M+": this.getMonth() + 1,
         "d+": this.getDate(),
@@ -19,7 +20,7 @@ Date.prototype.format = function(format) {
         if (new RegExp("(" + i + ")").test(format))
             format = format.replace(
                 RegExp.$1,
-                RegExp.$1.length == 1 ? n : ("00" + n).substr(("" + n).length)
+                RegExp.$1.length === 1 ? n : ("00" + n).substr(("" + n).length)
             )
     }
     return format

@@ -67,7 +67,6 @@ export default {
     },
     methods: {
         remixCmsGroupList(...types) {
-            console.log(this.selStatusList)
             types.push("roadName")
             this.devInfoList.forEach(cms => {
                 if (
@@ -166,7 +165,6 @@ export default {
                     list: [..._newDevList]
                 })
             } else if (this.checkListEmpty) {
-                console.log("else")
                 this.cmsGroupList = []
                 this.remixCmsGroupList()
             }

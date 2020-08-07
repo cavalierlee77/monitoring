@@ -25,6 +25,12 @@
 <script>
 import { mapState } from "vuex"
 export default {
+    created() {
+        if (!window.localStorage.getItem("socketid")) {
+            const S5 = this.setSocketId()
+            window.localStorage.setItem("socketid", S5)
+        }
+    },
     components: {
         MyHeader: () =>
             import(/* webpackChunkName: "entryapp" */ "../common/Header"),
@@ -46,7 +52,14 @@ export default {
             asideTital: state => state.common.asideTital
         })
     },
-    methods: {}
+    methods: {
+        setSocketId() {
+            const S5 =
+                Math.floor(Math.random() * 10000 + 1) +
+                new Date().format("hhmmssS")
+            return S5
+        }
+    }
 }
 </script>
 

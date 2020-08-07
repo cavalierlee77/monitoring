@@ -20,11 +20,11 @@ export default {
         SOCKET_ONCLOSE(state, event) {
             // 连接关闭触发的函数
             state.socket.isConnected = false
-            console.log("ONCLOSE", event)
+            // console.log("ONCLOSE", event)
         },
         SOCKET_ONERROR(state, event) {
             // 连接发生错误触发的函数
-            console.error("ONERROR", state, event)
+            // console.error("ONERROR", state, event)
         },
         SOCKET_ONMESSAGE(state, message) {
             // 收到消息时触发的函数
@@ -32,11 +32,15 @@ export default {
         },
         SOCKET_RECONNECT(state, count) {
             // 重新连接触发的函数
-            console.info("RECONNECT", state, count)
+            // console.info("RECONNECT", state, count)
         },
         SOCKET_RECONNECT_ERROR(state) {
             // 重新连接失败触发的函数
             state.socket.reconnectError = true
+            // console.info("RECONNECTERROR", state)
+        },
+        resetReconnectError(state, data = false) {
+            state.socket.reconnectError = data
         }
     },
     getters: {},

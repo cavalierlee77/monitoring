@@ -5,10 +5,20 @@
 </template>
 
 <script>
+import { mapState } from "vuex"
 import proxy from "@/store/constant/clouldConfig"
 export default {
+    data() {
+        return {
+            connectTimeout: "",
+            ff: false
+        }
+    },
     computed: {
-        userId: () => JSON.parse(window.localStorage.getItem("users")).userId
+        ...mapState({
+            reconnectError: state => state.commonTools.socket.reconnectError
+        }),
+        socketId: () => window.localStorage.getItem("socketid")
     },
     components: {
         DynamicLink: () =>
@@ -18,7 +28,7 @@ export default {
     },
     created() {
         this.$store.commit("setDynamicLink", "list")
-        this.$connect(proxy.websocketPath[proxy.pattern] + this.userId)
+        this.$connect(proxy.websocketPath[proxy.pattern] + this.socketId)
         // 建立socket链接
         console.log("建立socket链接")
         this.initializeWebSocket()
@@ -33,12 +43,42 @@ export default {
                     this.$socket.send("get_heartbeat_success")
                 }
             }
+        },
+        reconnect() {
+            if (this.reconnectError) {
+                this.$disconnect()
+                this.connectTimeout = setTimeout(() => {
+                    this.$connect(
+                        proxy.websocketPath[proxy.pattern] + this.socketId
+                    )
+                    this.$store.commit("resetReconnectError", false)
+                }, 5000)
+            } else {
+                this.$store.commit("resetReconnectError")
+                this.clearConnectTimeout()
+            }
+        },
+        clearConnectTimeout() {
+            try {
+                clearTimeout(this.connectTimeout)
+            } catch (error) {
+                // console.log(error)
+            }
         }
     },
     beforeDestroy() {
         // 页面销毁时,断开连接
         console.log("页面销毁，断开socket连接")
         this.$disconnect()
+    },
+    watch: {
+        reconnectError: {
+            handler(val) {
+                this.reconnect()
+            }
+        },
+        immediate: true,
+        deep: true
     }
 }
 </script>

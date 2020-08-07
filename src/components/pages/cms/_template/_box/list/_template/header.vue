@@ -7,14 +7,10 @@
             </el-breadcrumb>
         </section>
         <section class="header-middle">
-            <span>{{ title }}</span>
-            <!-- <div class="header-infos">
-                <span
-                    >总数：<span>{{ devCount }}</span></span
-                >
-                <span
-                    >故障：<span>{{ errorDev.length }}</span></span
-                >
+            <span v-on:mouseover="showSettings" v-on:mouseout="hideSettings">{{
+                title
+            }}</span>
+            <div class="header-infos" v-if="settings">
                 <el-popover placement="bottom" trigger="click">
                     <button
                         slot="reference"
@@ -25,9 +21,9 @@
                         <i class="el-icon-setting"></i>
                         <span>设置</span>
                     </button>
-                    <p @click="handleMenuItemClick">模板管理</p>
+                    <p @click="CheckCmsFn">{{ CheckCmsTitle }}</p>
                 </el-popover>
-            </div> -->
+            </div>
         </section>
         <section class="header-bottom">
             <div class="btn-wrap">
@@ -67,15 +63,17 @@
 <script>
 import { mapState } from "vuex"
 import { CheckBoxMixins } from "@/assets/mixins/CheckBox.js"
+import { CheckCmsMixins } from "@/assets/mixins/settings-CheckCms.js"
 export default {
     name: "",
     data() {
         return {
-            resultArr: []
-            // listName: "list"
+            resultArr: [],
+            settings: false,
+            settingsTimeout: ""
         }
     },
-    mixins: [CheckBoxMixins],
+    mixins: [CheckBoxMixins, CheckCmsMixins],
     computed: {
         ...mapState({
             title: state => state.cms.title,
@@ -91,6 +89,14 @@ export default {
             )
     },
     methods: {
+        showSettings() {
+            this.settingsTimeout = setTimeout(() => {
+                this.settings = true
+            }, 10000)
+        },
+        hideSettings() {
+            clearTimeout(this.settingsTimeout)
+        },
         handleMenuItemClick(key, keyPath) {
             this.$store.commit("setDynamicLink", "model")
         },

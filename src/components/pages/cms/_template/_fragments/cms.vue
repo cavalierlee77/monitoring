@@ -101,9 +101,9 @@ export default {
             return statusList.includes(_status)
         },
         cmsInfos(type, status) {
-            if (type === "edit" && (!status || status === "中断")) {
-                return
-            }
+            // if (type === "edit" && (!status || status === "中断")) {
+            //     return
+            // }
             this.$store.commit("setCmsId", this.dev.mapId)
             this.$store.commit("setDynamicLink", type)
         },

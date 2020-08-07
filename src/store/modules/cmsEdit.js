@@ -11,7 +11,8 @@ export default {
         sendHistory: [],
         successIds: [],
         failureIds: [],
-        listName: "default"
+        listName: "default",
+        editTextareaTips: ""
     },
     mutations: {
         setEditDynamicLink(state, data) {
@@ -39,6 +40,9 @@ export default {
         },
         setSendHistory(state, data) {
             state.sendHistory = [...data]
+        },
+        setEditTextareaTips(state, data) {
+            state.editTextareaTips = data
         },
         cleanSendIds(state) {
             state.successIds = []

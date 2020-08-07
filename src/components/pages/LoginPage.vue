@@ -49,6 +49,9 @@ export default {
         if (window.localStorage.getItem("users")) {
             window.localStorage.removeItem("users")
         }
+        if (window.localStorage.getItem("socketid")) {
+            window.localStorage.removeItem("socketid")
+        }
     },
     data() {
         return {
@@ -163,9 +166,12 @@ body {
     margin-top: -312px;
     height: 560px;
     width: 1110px;
-    background: url(../../assets/login/images/greenDlgl.webp) no-repeat 49.9%
-        47%;
-    background-size: 171.9% 205%;
+    background-image: url(../../assets/login/images/zhuyebeijing3.webp);
+    background-repeat: no-repeat;
+    background-position: -6px 14px;
+    /* background: url(../../assets/login/images/greenDlgl.png) no-repeat 49.9%
+        47%; */
+    /* background-size: 171.9% 205%; */
     text-align: center;
 }
 

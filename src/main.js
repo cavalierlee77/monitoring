@@ -27,9 +27,9 @@ Vue.use(VueNativeSocket, proxy.websocketPath[proxy.pattern], {
     // 开启自动重连
     reconnection: true,
     // 尝试重连的次数
-    reconnectionAttempts: 3,
+    reconnectionAttempts: 12,
     // 重连间隔时间
-    reconnectionDelay: 3000,
+    reconnectionDelay: 5000,
     // 手动链接
     connectManually: true,
     // 将数据进行序列化，由于启用了json格式的数据传输这里需要进行重写

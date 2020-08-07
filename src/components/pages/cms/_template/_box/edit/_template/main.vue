@@ -352,6 +352,16 @@ export default {
             const _list = this.pageList[this.pageCount].wordList
             const _newlist = [..._list]
             this.$set(this.pageList[this.pageCount], "wordList", _newlist)
+            this.checkWordListOverstep(page.wordList)
+        },
+        checkWordListOverstep(list) {
+            for (let i = 0; i < list.length; i++) {
+                if (parseInt(list[i].wx) < 0 || parseInt(list[i].wy) < 0) {
+                    this.$store.commit("setEditTextareaTips", "文字超长！")
+                    return
+                }
+            }
+            this.$store.commit("setEditTextareaTips", "")
         },
         changePage(index) {
             this.pageCount = +index
