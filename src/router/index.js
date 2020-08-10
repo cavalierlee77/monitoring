@@ -21,8 +21,12 @@ export default new Router({
             component: r.MainPage,
             children: [
                 {
-                    path: "cms",
+                    path: "cms/cms",
                     component: r.Cms
+                },
+                {
+                    path: "cms/map",
+                    component: r.DevMap
                 }
             ]
         }

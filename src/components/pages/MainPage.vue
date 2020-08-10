@@ -30,6 +30,7 @@ export default {
             const S5 = this.setSocketId()
             window.localStorage.setItem("socketid", S5)
         }
+        this.$router.push("/main/cms/cms")
     },
     components: {
         MyHeader: () =>

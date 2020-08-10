@@ -3,10 +3,17 @@ const LoginPage = () =>
 const MainPage = () =>
     import(/* webpackChunkName: "entryapp" */ "@/components/pages/MainPage")
 const Cms = () =>
-    import(/* webpackChunkName: "entryapp" */ "@/components/pages/cms")
+    import(
+        /* webpackChunkName: "entryapp" */ "@/components/pages/Equipment/cms"
+    )
+const DevMap = () =>
+    import(
+        /* webpackChunkName: "entryapp" */ "@/components/pages/Equipment/map"
+    )
 
 export default {
     LoginPage,
     MainPage,
-    Cms
+    Cms,
+    DevMap
 }

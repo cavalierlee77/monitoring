@@ -15,7 +15,7 @@ const CheckBoxMixins = {
     components: {
         SelectBox: () =>
             import(
-                /* webpackChunkName: "cms" */ "@pages/cms/_template/_fragments/selectbox.vue"
+                /* webpackChunkName: "cms" */ "@pages/_fragments/selectbox.vue"
             )
     },
     methods: {

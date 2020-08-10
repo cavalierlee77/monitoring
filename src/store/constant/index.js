@@ -9,16 +9,16 @@ export default {
                 {
                     title: "情报板展示",
                     hasChild: false,
-                    index: "main/cms",
+                    index: "main/cms/cms",
                     imgClass: "",
                     hot: true
                 },
                 {
                     title: "情报板地图",
                     hasChild: false,
-                    index: "main/cmsMap",
+                    index: "main/cms/map",
                     imgClass: "",
-                    hot: false
+                    hot: true
                 },
                 {
                     title: "模板管理",

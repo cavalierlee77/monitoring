@@ -59,9 +59,7 @@ export default {
         }
     },
     created() {},
-    mounted() {
-        this.$router.push("/main/cms")
-    },
+    mounted() {},
     computed: {
         onRoutes() {
             return this.$route.path.replace("/", "")
@@ -75,7 +73,7 @@ export default {
 
 <style scoped lang="scss">
 @import "../../../static/css/my-font-style.css";
-@import "@pages/cms/_css/commonStyle.scss";
+@import "@pages/Equipment/cms/_css/commonStyle.scss";
 .el-menu-vertical-demo {
     height: 100%;
     /* margin-right: -1px; */

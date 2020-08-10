@@ -66,7 +66,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-@import "@pages/cms/_css/commonStyle.scss";
+@import "@pages/Equipment/cms/_css/commonStyle.scss";
 /* 头部标题部分 */
 .mainpage_header {
     display: flex;
