@@ -20,6 +20,11 @@ module.exports = {
             }
         }
     },
+    mapImagePath: {
+        dev: "http://10.21.2.33/MonitoringImages/",
+        pord: "",
+        local: "http://10.21.2.33/MonitoringImages/"
+    },
     assetsPublicPath: {
         dev: "monitoring/",
         prod: "Monitoring/",

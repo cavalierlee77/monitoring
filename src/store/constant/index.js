@@ -9,14 +9,14 @@ export default {
                 {
                     title: "情报板展示",
                     hasChild: false,
-                    index: "main/cms/cms",
+                    index: "main/equipment/cms",
                     imgClass: "",
                     hot: true
                 },
                 {
                     title: "情报板地图",
                     hasChild: false,
-                    index: "main/cms/map",
+                    index: "main/equipment/map",
                     imgClass: "",
                     hot: true
                 },

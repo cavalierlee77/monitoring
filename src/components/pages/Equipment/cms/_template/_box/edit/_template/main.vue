@@ -469,12 +469,13 @@ export default {
                     devId: page.deviceId + "",
                     devVarTypeId: page.issuedTypeId + "",
                     devVarValue: "",
-                    playList: {
-                        dph: this.pageType.dph,
-                        dpt: this.pageType.dpt,
-                        dpw: this.pageType.dpw,
-                        itemList: pageList
-                    }
+                    itemList: pageList
+                    // playList: {
+                    //     dph: this.pageType.dph,
+                    //     dpt: this.pageType.dpt,
+                    //     dpw: this.pageType.dpw,
+                    //     itemList: pageList
+                    // }
                 }
                 sendArr.push(sendData)
                 this.sendHistory.push({

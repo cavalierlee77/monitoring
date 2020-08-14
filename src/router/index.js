@@ -21,11 +21,11 @@ export default new Router({
             component: r.MainPage,
             children: [
                 {
-                    path: "cms/cms",
+                    path: "equipment/cms",
                     component: r.Cms
                 },
                 {
-                    path: "cms/map",
+                    path: "equipment/map",
                     component: r.DevMap
                 }
             ]

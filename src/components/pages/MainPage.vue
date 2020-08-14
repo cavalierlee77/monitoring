@@ -24,13 +24,18 @@
 
 <script>
 import { mapState } from "vuex"
+// import LeftMenus from "@/store/constant/index.js"
 export default {
     created() {
         if (!window.localStorage.getItem("socketid")) {
             const S5 = this.setSocketId()
             window.localStorage.setItem("socketid", S5)
         }
-        this.$router.push("/main/cms/cms")
+
+        // const defaultShowPageUrl = LeftMenus.leftMenus[0].child[0].index
+        // console.log(defaultShowPageUrl)
+        // this.$router.push(defaultShowPageUrl)
+        this.$router.push("/main/equipment/cms")
     },
     components: {
         MyHeader: () =>
