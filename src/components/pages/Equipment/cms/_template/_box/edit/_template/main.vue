@@ -187,8 +187,7 @@ export default {
             } else {
                 cms = this.haveEmptyPlaylist(this.pageData)
             }
-            this.pageType = { ...JSON.parse(cms.data) }
-            this.pageList = [...this.pageType.itemList]
+            this.pageList = [...JSON.parse(cms.data)]
             this.pageList4Reset = cms.data
             this.remixPageList()
             this.resetInfos()
@@ -209,34 +208,29 @@ export default {
                 orgId: data.orgId,
                 sendFlag: 1
             }
-            const dataObj = {
-                dph: 64,
-                dpt: 1,
-                dpw: 128,
-                itemList: [
-                    {
-                        delay: 3,
-                        fc: "r",
-                        fn: "s",
-                        fs: 32,
-                        graphList: [],
-                        mode: 1,
-                        wordList: [
-                            {
-                                wc: "",
-                                wx: 0,
-                                wy: 0
-                            }
-                        ]
-                    }
-                ]
-            }
-            emptyPlaylist.data = JSON.stringify(dataObj)
+            const itemList = [
+                {
+                    delay: 3,
+                    fc: "r",
+                    fn: "s",
+                    fs: 32,
+                    graphList: [],
+                    mode: 1,
+                    wordList: [
+                        {
+                            wc: "",
+                            wx: 0,
+                            wy: 0
+                        }
+                    ]
+                }
+            ]
+            emptyPlaylist.data = JSON.stringify(itemList)
             return emptyPlaylist
         },
         remixPageList() {
             this.pageList.forEach(item => {
-                const ph = this.pageType.dph / item.wordList.length
+                const ph = parseInt(this.pageData.height) / item.wordList.length
                 item.wordList.forEach(word => {
                     word.pstyle = {
                         height: ph + "px",
@@ -470,12 +464,6 @@ export default {
                     devVarTypeId: page.issuedTypeId + "",
                     devVarValue: "",
                     itemList: pageList
-                    // playList: {
-                    //     dph: this.pageType.dph,
-                    //     dpt: this.pageType.dpt,
-                    //     dpw: this.pageType.dpw,
-                    //     itemList: pageList
-                    // }
                 }
                 sendArr.push(sendData)
                 this.sendHistory.push({

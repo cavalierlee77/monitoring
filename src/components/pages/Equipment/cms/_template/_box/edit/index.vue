@@ -7,9 +7,6 @@
             class="cms-edit-container-outwrap"
             v-bind:style="{ height: frameheight }"
         >
-            <!-- <el-aside :width="asideWidth">
-                <edit-aside :secHei="parseInt(frameheight)"></edit-aside>
-            </el-aside> -->
             <el-main class="cms-edit-main-outwrap">
                 <edit-main :frameheight="frameheight"></edit-main>
                 <edit-dynamic></edit-dynamic>
@@ -21,11 +18,6 @@
 <script>
 export default {
     created() {
-        if (document.body.clientWidth >= 1660) {
-            this.asideWidth = "1000px"
-        } else {
-            this.asideWidth = "600px"
-        }
         this.$store.commit("setEditDynamicLink", "EditBox")
     },
     data() {

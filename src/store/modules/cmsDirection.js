@@ -42,7 +42,8 @@ export default {
             devCtrReturn: "下发节目单返回信息",
             connect_success: "socket链接状态信息",
             statusDataReturn: "设备状态信息列表"
-        }
+        },
+        statusDesc: ["在线", "离线"]
     },
     mutations: {},
     getters: {},

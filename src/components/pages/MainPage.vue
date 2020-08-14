@@ -35,7 +35,8 @@ export default {
         // const defaultShowPageUrl = LeftMenus.leftMenus[0].child[0].index
         // console.log(defaultShowPageUrl)
         // this.$router.push(defaultShowPageUrl)
-        this.$router.push("/main/equipment/cms")
+        // this.$router.push("/main/equipment/cms")
+        this.$router.push("/main/equipment/map")
     },
     components: {
         MyHeader: () =>

@@ -15,7 +15,7 @@
                 v-if="!playlist === false"
             >
                 <el-carousel-item
-                    v-for="(page, index) in playlist.itemList"
+                    v-for="(page, index) in playlist"
                     :key="index"
                 >
                     <div
@@ -40,7 +40,7 @@ export default {
             type: Object
         },
         playlist: {
-            type: Object
+            type: Array
         }
     }
 }

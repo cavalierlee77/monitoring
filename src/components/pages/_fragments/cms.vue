@@ -58,7 +58,7 @@ import { mapState } from "vuex"
 export default {
     data() {
         return {
-            playList: {},
+            playList: [],
             statusList: {}
         }
     },
@@ -117,22 +117,26 @@ export default {
         },
         remixCms() {
             if (this.cms) {
-                this.playList = JSON.parse(this.cms.data)
-                this.playList.itemList.forEach(item => {
-                    const ph = this.playList.dph / item.wordList.length
-                    item.wordList.forEach(word => {
-                        word.pstyle = {
-                            height: ph + "px",
-                            top: word.wy + "px",
-                            left: word.wx + "px",
-                            "letter-spacing": 0 + "px",
-                            "font-size": this.dirFontSize[item.fs] + "px",
-                            color: this.dirColor[item.fc],
-                            "font-family": this.dirFontFamily[item.fn],
-                            "line-height": this.dirFontSize[item.fs] + "px"
-                        }
+                try {
+                    this.playList = JSON.parse(this.cms.data)
+                    this.playList.forEach(item => {
+                        const ph = this.playList.dph / item.wordList.length
+                        item.wordList.forEach(word => {
+                            word.pstyle = {
+                                height: ph + "px",
+                                top: word.wy + "px",
+                                left: word.wx + "px",
+                                "letter-spacing": 0 + "px",
+                                "font-size": this.dirFontSize[item.fs] + "px",
+                                color: this.dirColor[item.fc],
+                                "font-family": this.dirFontFamily[item.fn],
+                                "line-height": this.dirFontSize[item.fs] + "px"
+                            }
+                        })
                     })
-                })
+                } catch (error) {
+                    console.log(this.cms.deviceId)
+                }
             }
         }
     },

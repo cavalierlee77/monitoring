@@ -146,9 +146,9 @@ export default {
         remixInfos() {
             this.data = this.devMap[this.cmsId]
             this.pageData = { ...this.data }
-            this.pageType = { ...JSON.parse(this.cmsMap[this.cmsId].data) }
+            this.pageType = [...JSON.parse(this.cmsMap[this.cmsId].data)]
             this.pageType.cycle = 0
-            this.pageList = [...this.pageType.itemList]
+            this.pageList = [...this.pageType]
             this.pageList4Reset = this.cmsMap[this.cmsId].data
             this.remixPageList()
             this.setPageInfos()
@@ -156,7 +156,7 @@ export default {
         remixPageList() {
             this.pageList.forEach(item => {
                 this.pageType.cycle += item.delay
-                const ph = this.pageType.dph / item.wordList.length
+                const ph = parseInt(this.pageData.height) / item.wordList.length
                 item.wordList.forEach(word => {
                     word.pstyle = {
                         height: ph + "px",

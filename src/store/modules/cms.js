@@ -7,22 +7,6 @@ const state = {
     ...direction.state, // 字典
     ...edit.state,
     title: "情报板展示", //
-    // titleRount: [
-    //     {
-    //         title: "情报板管理",
-    //         url: "list",
-    //         children: [
-    //             {
-    //                 title: "情报板编辑",
-    //                 url: "edit"
-    //             },
-    //             {
-    //                 title: "情报板详情",
-    //                 url: "detail"
-    //             }
-    //         ]
-    //     }
-    // ],
     devCount: 0, // 情报板数量
     devInfoList: [], // 原始基本信息列表
     cmsInfoList: [], // 播放表
@@ -186,8 +170,6 @@ const state = {
     checkList: { default: [] },
     checkListEmpty: {},
     errorDev: [],
-    // statusDesc: [{ 状态: ["正常", "离线", "故障"] }],
-    statusDesc: ["在线", "离线"],
     unableSelOptions: [],
     selStatusList: [],
     statusDescMap: {}
