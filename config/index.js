@@ -1,6 +1,5 @@
 const proxy = require("../src/store/constant/clouldConfig")
 const path = require("path")
-
 module.exports = {
     dev: {
         assetsSubDirectory: "static",
@@ -21,7 +20,7 @@ module.exports = {
         index: path.resolve(__dirname, "../dist/index.html"),
         assetsRoot: path.resolve(__dirname, "../dist"),
         assetsSubDirectory: "static",
-        assetsPublicPath: "/" + proxy.assetsPublicPath[proxy.pattern],
+        assetsPublicPath: "/Monitoring/",
         productionSourceMap: true,
         devtool: "#source-map",
         productionGzip: true,

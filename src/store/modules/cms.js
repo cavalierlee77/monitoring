@@ -2,10 +2,12 @@ import Vue from "vue"
 import api from "../../../static/js/MyAxios.js"
 import direction from "./cmsDirection"
 import edit from "./cmsEdit"
+import mapPage from "./cmsMap"
 
 const state = {
     ...direction.state, // 字典
     ...edit.state,
+    ...mapPage.state,
     title: "情报板展示", //
     devCount: 0, // 情报板数量
     devInfoList: [], // 原始基本信息列表
@@ -172,7 +174,9 @@ const state = {
     errorDev: [],
     unableSelOptions: [],
     selStatusList: [],
-    statusDescMap: {}
+    statusDescMap: {},
+    tillNowPage: "",
+    fromWhere: ""
 }
 
 // getters
@@ -181,6 +185,7 @@ const getters = {}
 // actions
 const actions = {
     ...edit.actions,
+    ...mapPage.actions,
     getDirections({ commit }) {
         return new Promise((resolve, reject) => {
             const url = "/Monitor-Graph/cms/getDeviceVarTypeInfo"
@@ -250,6 +255,10 @@ const actions = {
 // mutations
 const mutations = {
     ...edit.mutations,
+    ...mapPage.mutations,
+    setTillNowPage(state, data) {
+        state.tillNowPage = data
+    },
     setUnableSelOptions(state, data) {
         state.unableSelOptions = [...data]
     },
@@ -404,10 +413,8 @@ const mutations = {
                 }
             })
             if (Object.entries(state.checkList[ok]).length > 0) {
-                // state.checkListEmpty = false
                 Vue.set(state.checkListEmpty, ok, false)
             } else {
-                // state.checkListEmpty = true
                 Vue.set(state.checkListEmpty, ok, true)
             }
         })
@@ -439,6 +446,9 @@ const mutations = {
         if (i >= 0) {
             state.errorDev.splice(i, 1)
         }
+    },
+    setFromWhere(state, data) {
+        state.fromWhere = data
     }
 }
 
@@ -456,5 +466,6 @@ export default {
     state,
     getters,
     actions,
-    mutations
+    mutations,
+    mapPage
 }

@@ -11,7 +11,7 @@
                 </div>
             </header>
         </section>
-        <aside>
+        <aside class="cms-aside">
             <p v-if="statusList.status">
                 <el-popover
                     placement="left"
@@ -59,7 +59,10 @@ export default {
     data() {
         return {
             playList: [],
-            statusList: {}
+            statusList: {},
+            dev: {},
+            status: [],
+            cms: {}
         }
     },
     components: {
@@ -71,18 +74,16 @@ export default {
             dirFontFamily: state => state.cms.directionShowFontFamily,
             dirFontSize: state => state.cms.directionFontSize,
             selStatusList: state => state.cms.selStatusList,
-            statusDesc: state => state.cms.statusDescMap
+            statusDesc: state => state.cms.statusDescMap,
+            devMap: state => state.cms.devMap,
+            statusMap: state => state.cms.statusMap,
+            cmsMap: state => state.cms.cmsMap,
+            tillNowPage: state => state.cms.tillNowPage
         })
     },
     props: {
-        dev: {
-            type: Object
-        },
-        status: {
-            type: Array
-        },
-        cms: {
-            type: Object
+        cmsId: {
+            type: String
         }
     },
     methods: {
@@ -101,11 +102,16 @@ export default {
             return statusList.includes(_status)
         },
         cmsInfos(type, status) {
-            // if (type === "edit" && (!status || status === "中断")) {
-            //     return
-            // }
-            this.$store.commit("setCmsId", this.dev.mapId)
-            this.$store.commit("setDynamicLink", type)
+            this.$store.commit("setCmsId", this.cmsId)
+            this.$store.commit("setFromWhere", this.tillNowPage)
+            if (this.tillNowPage === "map") {
+                this.$router.push({
+                    path: "/main/equipment/cms",
+                    query: { path: type }
+                })
+            } else {
+                this.$store.commit("setDynamicLink", type)
+            }
         },
         remixDev() {
             const size = this.dev.cmsSizeDesc.split("×")
@@ -113,7 +119,7 @@ export default {
             this.dev.height = size[1] + "px"
         },
         setStatusList() {
-            this.statusList = { ...this.statusDesc[this.dev.mapId] }
+            this.statusList = { ...this.statusDesc[this.cmsId] }
         },
         remixCms() {
             if (this.cms) {
@@ -138,19 +144,20 @@ export default {
                     console.log(this.cms.deviceId)
                 }
             }
+        },
+        setDevInfos() {
+            this.dev = this.devMap[this.cmsId]
+            this.cms = this.cmsMap[this.cmsId]
+            this.status = this.statusMap[this.cmsId]
+            this.remixDev()
+            this.remixCms()
+            this.setStatusList()
         }
     },
     watch: {
-        dev: {
+        cmsId: {
             handler() {
-                this.remixDev()
-            },
-            immediate: true
-        },
-        cms: {
-            handler() {
-                this.remixCms()
-                this.setStatusList()
+                this.setDevInfos()
             },
             immediate: true
         },
@@ -241,7 +248,6 @@ $transition-time: 240ms;
 
     > aside {
         width: 50px;
-        height: 100%;
         display: flex;
         flex-direction: column;
         background-color: #fff;

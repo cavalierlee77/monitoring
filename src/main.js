@@ -19,7 +19,10 @@ export const that = new Vue({
     template: "<App/>"
 })
 
-Vue.use(VueNativeSocket, proxy.websocketPath[proxy.pattern], {
+const socketUrl = proxy.websocketPath[proxy.pattern]
+    ? proxy.websocketPath[proxy.pattern]
+    : window.config_.websocketPath
+Vue.use(VueNativeSocket, socketUrl, {
     // 启用Vuex集成,store的值为你的vuex
     store: store,
     // 数据发送/接收使用使用json格式

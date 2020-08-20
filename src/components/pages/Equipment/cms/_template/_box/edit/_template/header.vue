@@ -38,12 +38,19 @@ export default {
     },
     methods: {
         handleMenuItemClick() {
-            this.$store.commit("setDynamicLink", "list")
+            if (this.fromWhere === "map") {
+                this.$router.push({
+                    path: "/main/equipment/map"
+                })
+            } else if (this.fromWhere === "cms") {
+                this.$store.commit("setDynamicLink", "list")
+            }
         }
     },
     computed: {
         ...mapState({
-            dev: state => state.cms.devMap[state.cms.cmsId]
+            dev: state => state.cms.devMap[state.cms.cmsId],
+            fromWhere: state => state.cms.fromWhere
         })
     }
 }

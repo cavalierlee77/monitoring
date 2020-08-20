@@ -5,6 +5,9 @@ $qc-b: 216;
 $transition-time-query: 200ms;
 $background-color: #caf0f8;
 $border-color: #00b4d8;
+$btc-del-r: 201;
+$btc-del-g: 45;
+$btc-del-b: 45;
 .query-wrap {
     position: relative;
     display: flex;
@@ -62,6 +65,18 @@ $border-color: #00b4d8;
         mask-size: 100%;
         background-color: $qc-text;
     }
+    i.icon-delete {
+        margin-right: -6px !important;
+        &:hover {
+            background-color: rgba(
+                $btc-del-r,
+                $btc-del-g,
+                $btc-del-b,
+                0.7
+            ) !important;
+            transition: all $transition-time-query ease;
+        }
+    }
 
     &[type="round"] {
         border-radius: 16px;
@@ -84,8 +99,14 @@ $border-color: #00b4d8;
         border-color: $border-color;
         transition: all $transition-time-query ease;
 
-        i.icon-custom {
+        i.icon-custom,
+        i:not(.icon-delete) {
             background-color: rgba($qc-r, $qc-g, $qc-b, 0.7);
+            transition: all $transition-time-query ease;
+        }
+        i.icon-delete {
+            // background-color: rgba($btc-del-r, $btc-del-g, $btc-del-b, 0.7);
+            background-color: rgba($btc-del-b, $btc-del-b, $btc-del-b, 0.7);
             transition: all $transition-time-query ease;
         }
         input[type="text"]::-webkit-input-placeholder {
@@ -102,6 +123,7 @@ $border-color: #00b4d8;
         font-size: 14px;
         color: #555;
         transition: all $transition-time-query ease;
+        flex-grow: 1;
 
         &::-webkit-input-placeholder {
             color: #bbb;
@@ -130,7 +152,6 @@ $border-color: #00b4d8;
             text-align: left;
             text-indent: 12px;
             transition: all $transition-time-query ease;
-            // &:hover,
             &.checked {
                 color: $border-color;
                 font-size: 15px;

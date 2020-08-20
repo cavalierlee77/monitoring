@@ -16,6 +16,11 @@
             @keydown="whichKeydown($event)"
             v-model="inputModel"
         />
+        <i
+            class="icon-custom icon-close icon-delete"
+            @click="closeFn"
+            v-if="inputModel !== ''"
+        ></i>
         <div></div>
         <section class="query-result">
             <p
@@ -23,7 +28,7 @@
                 :key="index"
                 @click.stop="clickListFn($event, dev)"
                 :class="{ checked: index + 1 === defaultIndex }"
-                @mouseover="defaultIndex = index + 1"
+                @mouseover="queryMouseoverFn(index)"
                 @mouseout="defaultIndex = 0"
             >
                 {{ dev.show }}
@@ -44,20 +49,40 @@ export default {
             temporary: 0
         }
     },
+    created() {
+        this.inputModel = this.defaultText
+    },
     props: {
         width: {
             type: Number,
             default: () => 400
         },
         pressKeyFn: {
-            type: Function
+            type: Function,
+            default: () => {}
         },
         resultArr: {
             type: Array,
             default: () => []
+        },
+        clearFn: {
+            type: Function,
+            default: () => {}
+        },
+        defaultText: {
+            type: String,
+            default: () => ""
+        },
+        queryMouseover: {
+            type: Function,
+            default: () => {}
         }
     },
     methods: {
+        queryMouseoverFn(index) {
+            this.defaultIndex = index + 1
+            this.$emit("queryMouseover", { devId: this.resultArr[index].id })
+        },
         checkFocus() {
             this.checkflag = true
         },
@@ -71,13 +96,18 @@ export default {
             this.temporary = 0
             this.selectlist()
         },
+        closeFn() {
+            this.inputModel = ""
+            this.$emit("clearFn")
+        },
         selectlist() {
             this.$emit("pressKeyFn", this.inputModel)
         },
         clickListFn(e, dev) {
             e.stopPropagation()
             this.$emit("pressKeyFn", {
-                clickList: this.resultArr[this.defaultIndex - 1]
+                clickList: this.resultArr[this.defaultIndex - 1],
+                inputModel: this.inputModel
             })
         },
         checkArrEmpty() {

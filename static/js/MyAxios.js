@@ -1,7 +1,5 @@
 // 配置API接口地址
 
-// import { that } from "../../src/main.js"
-
 import { pattern, axiosUrl } from "@/store/constant/clouldConfig"
 
 var root = ""
@@ -32,8 +30,24 @@ function filterNull(o) {
     return o
 }
 
+function getRoot(root, url) {
+    if (!window.config_) {
+        return
+    }
+    const resetRoot = function(root, url) {
+        if (url.includes("Monitor-Graph")) {
+            return window.config_.axiosUrl["Monitor-Graph"]
+        } else if (url.includes("collsvr")) {
+            return window.config_.axiosUrl.collsvr
+        }
+        return root
+    }
+    const _root = resetRoot(root, url)
+    return _root
+}
+
 function apiAxios(method, url, params, success, failure) {
-    root = axiosUrl[pattern](root, url)
+    root = axiosUrl[pattern] ? axiosUrl[pattern](root, url) : getRoot(root, url)
     if (params) {
         params = filterNull(params)
     }

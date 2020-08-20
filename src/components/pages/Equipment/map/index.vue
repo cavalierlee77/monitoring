@@ -1,24 +1,24 @@
 <template>
     <div>
         <div id="map" :style="{ height: FrameHeight }"></div>
+        <div id="mouse-position"></div>
         <div id="popup" class="ol-popup">
-            <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+            <!-- <a href="#" id="popup-closer" class="ol-popup-closer"></a> -->
             <div id="popup-content"></div>
         </div>
-        <div id="mouse-position"></div>
+        <!-- <div id="mouse-position"></div> -->
         <div class="query-outwrap">
             <query-box
-                :width="400"
+                :width="502"
                 :resultArr="resultArr"
                 @pressKeyFn="pressKeyFn"
+                @clearFn="clearFn"
+                :defaultText="defaultText"
+                @queryMouseover="queryMouseover"
             ></query-box>
         </div>
-        <div class="result-outwrap">
-            <cms-window
-                :dev="devMap[mid]"
-                :status="statusMap[mid]"
-                :cms="cmsMap[mid]"
-            ></cms-window>
+        <div class="result-outwrap" v-if="mapId !== ''">
+            <cms-window :cmsId="mapId"></cms-window>
         </div>
     </div>
 </template>
@@ -27,25 +27,27 @@ import "ol/ol.css"
 import { Map, View, Overlay } from "ol"
 import TileLayer from "ol/layer/Tile"
 import XYZ from "ol/source/XYZ"
-import { toLonLat } from "ol/proj"
+
 import Feature from "ol/Feature"
 import { Icon, Style } from "ol/style"
 import VectorSource from "ol/source/Vector"
 import { Vector as VectorLayer } from "ol/layer"
 import Point from "ol/geom/Point"
 import { toStringXY } from "ol/coordinate"
+
+// import { toStringXY, createStringXY } from "ol/coordinate"
 // import { defaults as defaultControls } from "ol/control"
 // import MousePosition from "ol/control/MousePosition"
-
+// import Select from "ol/interaction/Select"
 import proxy from "@/store/constant/clouldConfig"
-import { setTimeout } from "timers"
 import { mapState } from "vuex"
 
+import { InitializeWebSocket } from "@/assets/mixins/InitializeWebSocket.js"
 import { ConnectWebSocket } from "@/assets/mixins/ConnectWebSocket.js"
 import { CheckBoxMixins } from "@/assets/mixins/CheckBox.js"
 export default {
     name: "",
-    mixins: [ConnectWebSocket, CheckBoxMixins],
+    mixins: [ConnectWebSocket, CheckBoxMixins, InitializeWebSocket],
     components: {
         QueryBox: () =>
             import(
@@ -56,23 +58,34 @@ export default {
     },
     data() {
         return {
-            iconImage: proxy.mapImagePath[proxy.pattern] + "icon.png",
-            mapXYZ:
-                proxy.mapImagePath[proxy.pattern] +
-                "offlineMapTiles/{z}/{x}/{y}.png",
+            iconImagePath: proxy.mapImagePath[proxy.pattern]
+                ? proxy.mapImagePath[proxy.pattern]
+                : window.config_.mapImagePath,
+            iconImage: "/icon.png",
+            iconImageHover: "/icon-hover.png",
+            mapXYZ: "offlineMapTiles/{z}/{x}/{y}.png",
             FrameHeight: "",
             map: "",
             vectorSource: "",
             resultArr: [],
-            mid: ""
+            mapId: "",
+            longitudeCorrected: -0.0062,
+            latitudeCorrected: -0.0062,
+            checkInput: "",
+            defaultText: "",
+            iconFeatureArr: [],
+            FeatureMap: {},
+            oldMapId: "",
+            oldClickMapId: ""
         }
     },
     computed: {
         ...mapState({
+            devInfoList: state => state.cms.devInfoList,
             devMap: state => state.cms.devMap,
-            statusMap: state => state.cms.statusMap,
-            cmsMap: state => state.cms.cmsMap,
-            devInfoList: state => state.cms.devInfoList
+            latestMapId: state => state.cms.latestMapId,
+            latestCheckInput: state => state.cms.latestCheckInput,
+            devInfoListReady: state => state.cms.devInfoListReady
         })
     },
     methods: {
@@ -94,7 +107,7 @@ export default {
         createFeature(point) {
             var feature = new Feature({
                 geometry: point,
-                name: "Null Island",
+                // name: "Null Island",
                 population: 4000,
                 rainfall: 500
             })
@@ -117,12 +130,22 @@ export default {
                     duration: 250
                 }
             })
+            // var mousePositionControl = new MousePosition({
+            //     coordinateFormat: createStringXY(4),
+            //     projection: "EPSG:4326",
+            //     // comment the following two lines to have the mouse position
+            //     // be placed within the map.
+            //     className: "custom-mouse-position",
+            //     target: document.getElementById("mouse-position"),
+            //     undefinedHTML: "&nbsp;"
+            // })
             this.map = new Map({
+                // controls: defaultControls().extend([mousePositionControl]),
                 target: "map",
                 layers: [
                     new TileLayer({
                         source: new XYZ({
-                            url: this.mapXYZ
+                            url: this.iconImagePath + this.mapXYZ
                         })
                     }),
                     vectorLayer
@@ -132,10 +155,19 @@ export default {
                     center: [118.8890838, 42.4715848],
                     // projection: "EPSG:3857", // 默认
                     projection: "EPSG:4326",
-                    zoom: 10
+                    zoom: 10,
+                    minZoom: 9,
+                    maxZoom: 14,
+                    extent: [
+                        116.42200533463954,
+                        41.071560631253153,
+                        121.70645117187501,
+                        44.04065543651788
+                    ]
                 })
             })
             const map = this.map
+            const _this = this
             map.addEventListener("click", function(evt) {
                 var feature = map.forEachFeatureAtPixel(evt.pixel, function(
                     feature
@@ -146,21 +178,61 @@ export default {
                     var coordinate = feature.getGeometry().getCoordinates()
                     var hdms = toStringXY(coordinate, 4)
                     var obj = feature.getProperties()
-                    console.log("source =" + coordinate)
-                    console.log("toLonLat =" + toLonLat(coordinate))
-                    content.innerHTML =
-                        "<p>You clicked here:</p><code>" +
-                        hdms +
-                        ",id=" +
-                        obj.id +
-                        ",name=" +
-                        obj.name +
-                        "</code>"
+                    _this.clickPoint(obj, hdms)
+                    content.innerHTML = "<p>" + obj.stationInfo + "</p>"
                     overlay.setPosition(coordinate)
+                    _this.resetOldFeatureStyle("oldClickMapId")
+                    _this.oldClickMapId = feature.values_.id
+                    feature.setStyle(
+                        new Style({
+                            image: new Icon({
+                                anchor: [0.5, 46],
+                                anchorXUnits: "fraction",
+                                anchorYUnits: "pixels",
+                                src: _this.iconImagePath + _this.iconImageHover
+                            })
+                        })
+                    )
                 } else {
                     overlay.setPosition(undefined)
                 }
             })
+            map.addEventListener("pointermove", function(evt) {
+                var feature = map.forEachFeatureAtPixel(evt.pixel, function(
+                    feature
+                ) {
+                    return feature
+                })
+                if (feature) {
+                    var coordinate = feature.getGeometry().getCoordinates()
+                    // var hdms = toStringXY(coordinate, 4)
+                    var obj = feature.getProperties()
+                    // _this.clickPoint(obj, hdms)
+                    content.innerHTML = "<p>" + obj.stationInfo + "</p>"
+                    overlay.setPosition(coordinate)
+                    if (_this.oldMapId !== _this.oldClickMapId)
+                        _this.resetOldFeatureStyle()
+                    _this.oldMapId = feature.values_.id
+                    feature.setStyle(
+                        new Style({
+                            image: new Icon({
+                                anchor: [0.5, 46],
+                                anchorXUnits: "fraction",
+                                anchorYUnits: "pixels",
+                                src: _this.iconImagePath + _this.iconImageHover
+                            })
+                        })
+                    )
+                } else {
+                    if (_this.oldMapId !== _this.oldClickMapId)
+                        _this.resetOldFeatureStyle()
+                    overlay.setPosition(undefined)
+                }
+            })
+        },
+        clickPoint(...positions) {
+            const featureProperties = positions[0]
+            this.mapId = featureProperties.id
         },
         createMapIcon() {
             const icon = new Style({
@@ -168,7 +240,7 @@ export default {
                     anchor: [0.5, 46],
                     anchorXUnits: "fraction",
                     anchorYUnits: "pixels",
-                    src: this.iconImage
+                    src: this.iconImagePath + this.iconImage
                 })
             })
             return icon
@@ -184,15 +256,31 @@ export default {
             iconFeature.setStyle(iconStyle)
             return iconFeature
         },
-        setMapPoints() {
-            this.devInfoList.forEach(dev => {
+        setMapPoints(list) {
+            let infoList = []
+            if (!list) {
+                infoList = [...this.devInfoList]
+            } else {
+                list.map(dev => dev.id).forEach(mapid => {
+                    infoList.push(this.devMap[mapid])
+                })
+            }
+            infoList.forEach(dev => {
                 const iconFeature = this.createIconFeature(
-                    [dev.longitude, dev.latitude],
+                    [
+                        dev.longitude + this.longitudeCorrected,
+                        dev.latitude + this.latitudeCorrected
+                    ],
                     {
-                        id: dev.mapId
+                        id: dev.mapId,
+                        stationInfo: dev.stationInfo
                     }
                 )
-                this.vectorSource.addFeature(iconFeature)
+                if (this.vectorSource) {
+                    this.vectorSource.addFeature(iconFeature)
+                }
+                this.iconFeatureArr.push(iconFeature)
+                this.$set(this.FeatureMap, dev.mapId, iconFeature)
             })
         },
         pressKeyFn(res) {
@@ -202,16 +290,62 @@ export default {
                     if (k === "clickList") {
                         this.clickList(v)
                     }
+                    if (k === "inputModel") {
+                        this.checkInput = v
+                    }
                 })
             }
             if (type === "string") {
                 this.selectFunc(res)
             }
         },
+        queryMouseover(res) {
+            const _this = this
+            this.resetOldFeatureStyle()
+            this.oldMapId = res.devId
+            if (res.devId !== "" && this.FeatureMap[res.devId]) {
+                this.FeatureMap[res.devId].setStyle(
+                    new Style({
+                        image: new Icon({
+                            anchor: [0.5, 46],
+                            anchorXUnits: "fraction",
+                            anchorYUnits: "pixels",
+                            src: _this.iconImagePath + _this.iconImageHover
+                        })
+                    })
+                )
+            }
+        },
+        resetOldFeatureStyle(str) {
+            const _this = this
+            const idKey = str || "oldMapId"
+            if (this[idKey] !== "" && this.FeatureMap[this[idKey]]) {
+                this.FeatureMap[this[idKey]].setStyle(
+                    new Style({
+                        image: new Icon({
+                            anchor: [0.5, 46],
+                            anchorXUnits: "fraction",
+                            anchorYUnits: "pixels",
+                            src: _this.iconImagePath + _this.iconImage
+                        })
+                    })
+                )
+            }
+        },
+        clearFn() {
+            this.mapId = ""
+            this.$store.commit("setLatestMapId", "")
+            this.$store.commit("setLatestCheckInput", "")
+            this.setMapPoints()
+            this.FeatureMap = {}
+            this.resetOldFeatureStyle()
+            this.oldMapId = ""
+            this.oldClickMapId = ""
+        },
         clickList(dev) {
             this.$store.commit("setCmsId", dev.id)
-            this.mid = dev.id
-            // this.$store.commit("setDynamicLink", "detail")
+            this.mapId = dev.id
+            this.oldClickMapId = dev.id
         },
         selectFunc(str) {
             this.resultArr = []
@@ -225,18 +359,73 @@ export default {
                         })
                     }
                 })
+            } else if (str === "") {
+                this.clearFn()
             }
+            if (this.resultArr.length > 0) {
+                if (this.vectorSource) {
+                    this.vectorSource.clear()
+                }
+                this.setMapPoints(this.resultArr)
+            }
+        },
+        setOldClickPoint() {
+            this.oldClickMapId = this.mapId
+            const _this = this
+            this.FeatureMap[this.oldClickMapId].setStyle(
+                new Style({
+                    image: new Icon({
+                        anchor: [0.5, 46],
+                        anchorXUnits: "fraction",
+                        anchorYUnits: "pixels",
+                        src: _this.iconImagePath + _this.iconImageHover
+                    })
+                })
+            )
+        },
+        loadMapPoints() {
+            setTimeout(() => {
+                this.createMapView()
+                this.setMapPoints()
+                if (this.latestMapId) {
+                    this.setOldClickPoint()
+                }
+            }, 0)
+        }
+    },
+    created() {
+        this.$store.commit("setTillNowPage", "map")
+        if (this.latestMapId) {
+            this.mapId = this.latestMapId
+        }
+        if (this.latestCheckInput) {
+            this.defaultText = this.latestCheckInput
         }
     },
     mounted() {
         this.getFreamHeight()
-        if (Object.keys(this.devInfoList).length === 0) {
-            this.getBasicInfos()
+    },
+    beforeDestroy() {
+        if (this.mapId !== "") {
+            this.$store.commit("setLatestMapId", this.mapId)
         }
-        setTimeout(() => {
-            this.createMapView()
-            this.setMapPoints()
-        }, 0)
+        if (this.checkInput !== "") {
+            this.$store.commit("setLatestCheckInput", this.checkInput)
+        }
+    },
+    watch: {
+        devInfoList: {
+            handler(val) {
+                if (val.length > 0) {
+                    this.loadMapPoints()
+                }
+                if (val.length === 0) {
+                    this.getBasicInfos()
+                }
+            },
+            immediate: true,
+            deep: true
+        }
     }
 }
 </script>
@@ -246,14 +435,25 @@ export default {
 @import "@pages/Equipment/cms/_css/commonStyle.scss";
 @import "@pages/Equipment/cms/_css/query.scss";
 .query-outwrap {
-    position: fixed;
-    top: 92px;
-    left: 236px;
+    position: absolute;
+    top: 32px;
+    left: 56px;
     z-index: 9999;
+}
+
+.result-outwrap {
+    position: absolute;
+    top: 70px;
+    left: 56px;
+    z-index: 9998;
+    width: auto;
+    .wrap-cms {
+        margin: 0;
+        width: 500px;
+    }
 }
 #map {
     width: 100%;
-    // height: 600px;
 }
 
 .ol-popup {
@@ -263,9 +463,10 @@ export default {
     padding: 15px;
     border-radius: 10px;
     border: 1px solid #cccccc;
-    bottom: 12px;
+    bottom: 42px;
     left: -50px;
-    min-width: 280px;
+    min-width: 200px;
+    text-align: center;
 }
 .ol-popup:after,
 .ol-popup:before {

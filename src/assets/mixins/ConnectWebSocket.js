@@ -26,10 +26,11 @@ const ConnectWebSocket = {
         reconnect() {
             if (this.reconnectError) {
                 this.$disconnect()
+                const socketUrl = proxy.websocketPath[proxy.pattern]
+                    ? proxy.websocketPath[proxy.pattern]
+                    : window.config_.websocketPath
                 this.connectTimeout = setTimeout(() => {
-                    this.$connect(
-                        proxy.websocketPath[proxy.pattern] + this.socketId
-                    )
+                    this.$connect(socketUrl + this.socketId)
                     this.$store.commit("resetReconnectError", false)
                 }, 5000)
             } else {
@@ -46,7 +47,10 @@ const ConnectWebSocket = {
         }
     },
     mounted() {
-        this.$connect(proxy.websocketPath[proxy.pattern] + this.socketId)
+        const socketUrl = proxy.websocketPath[proxy.pattern]
+            ? proxy.websocketPath[proxy.pattern]
+            : window.config_.websocketPath
+        this.$connect(socketUrl + this.socketId)
         // 建立socket链接
         console.log("建立socket链接")
         this.initializeWebSocket()

@@ -8,9 +8,7 @@
                 <cms-window
                     v-for="(mid, index) in area.list"
                     :key="index"
-                    :dev="devMap[mid]"
-                    :status="statusMap[mid]"
-                    :cms="cmsMap[mid]"
+                    :cmsId="mid"
                 ></cms-window>
             </div>
         </section>

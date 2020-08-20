@@ -67,7 +67,7 @@ module.exports = {
                     }
                 },
                 include: path.resolve(__dirname, "src"),
-                exclude: /node_modules/
+                exclude: [/node_modules/, /node_config/]
             },
             {
                 test: /\.sass$/,
