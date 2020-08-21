@@ -15,6 +15,7 @@
                 @clearFn="clearFn"
                 :defaultText="defaultText"
                 @queryMouseover="queryMouseover"
+                :needClearBtn="oldClickMapId !== ''"
             ></query-box>
         </div>
         <div class="result-outwrap" v-if="mapId !== ''">
@@ -83,6 +84,7 @@ export default {
         ...mapState({
             devInfoList: state => state.cms.devInfoList,
             devMap: state => state.cms.devMap,
+            statusMap: state => state.cms.statusMap,
             latestMapId: state => state.cms.latestMapId,
             latestCheckInput: state => state.cms.latestCheckInput,
             devInfoListReady: state => state.cms.devInfoListReady
@@ -107,7 +109,6 @@ export default {
         createFeature(point) {
             var feature = new Feature({
                 geometry: point,
-                // name: "Null Island",
                 population: 4000,
                 rainfall: 500
             })
@@ -130,17 +131,7 @@ export default {
                     duration: 250
                 }
             })
-            // var mousePositionControl = new MousePosition({
-            //     coordinateFormat: createStringXY(4),
-            //     projection: "EPSG:4326",
-            //     // comment the following two lines to have the mouse position
-            //     // be placed within the map.
-            //     className: "custom-mouse-position",
-            //     target: document.getElementById("mouse-position"),
-            //     undefinedHTML: "&nbsp;"
-            // })
             this.map = new Map({
-                // controls: defaultControls().extend([mousePositionControl]),
                 target: "map",
                 layers: [
                     new TileLayer({
@@ -183,16 +174,7 @@ export default {
                     overlay.setPosition(coordinate)
                     _this.resetOldFeatureStyle("oldClickMapId")
                     _this.oldClickMapId = feature.values_.id
-                    feature.setStyle(
-                        new Style({
-                            image: new Icon({
-                                anchor: [0.5, 46],
-                                anchorXUnits: "fraction",
-                                anchorYUnits: "pixels",
-                                src: _this.iconImagePath + _this.iconImageHover
-                            })
-                        })
-                    )
+                    _this.setIconImage(feature, "Hover")
                 } else {
                     overlay.setPosition(undefined)
                 }
@@ -205,27 +187,17 @@ export default {
                 })
                 if (feature) {
                     var coordinate = feature.getGeometry().getCoordinates()
-                    // var hdms = toStringXY(coordinate, 4)
                     var obj = feature.getProperties()
-                    // _this.clickPoint(obj, hdms)
                     content.innerHTML = "<p>" + obj.stationInfo + "</p>"
                     overlay.setPosition(coordinate)
                     if (_this.oldMapId !== _this.oldClickMapId)
                         _this.resetOldFeatureStyle()
                     _this.oldMapId = feature.values_.id
-                    feature.setStyle(
-                        new Style({
-                            image: new Icon({
-                                anchor: [0.5, 46],
-                                anchorXUnits: "fraction",
-                                anchorYUnits: "pixels",
-                                src: _this.iconImagePath + _this.iconImageHover
-                            })
-                        })
-                    )
+                    _this.setIconImage(feature, "Hover")
                 } else {
-                    if (_this.oldMapId !== _this.oldClickMapId)
+                    if (_this.oldMapId !== _this.oldClickMapId) {
                         _this.resetOldFeatureStyle()
+                    }
                     overlay.setPosition(undefined)
                 }
             })
@@ -300,47 +272,40 @@ export default {
             }
         },
         queryMouseover(res) {
-            const _this = this
             this.resetOldFeatureStyle()
             this.oldMapId = res.devId
             if (res.devId !== "" && this.FeatureMap[res.devId]) {
-                this.FeatureMap[res.devId].setStyle(
-                    new Style({
-                        image: new Icon({
-                            anchor: [0.5, 46],
-                            anchorXUnits: "fraction",
-                            anchorYUnits: "pixels",
-                            src: _this.iconImagePath + _this.iconImageHover
-                        })
-                    })
-                )
+                this.setIconImage(this.FeatureMap[res.devId], "Hover")
             }
         },
         resetOldFeatureStyle(str) {
-            const _this = this
             const idKey = str || "oldMapId"
             if (this[idKey] !== "" && this.FeatureMap[this[idKey]]) {
-                this.FeatureMap[this[idKey]].setStyle(
-                    new Style({
-                        image: new Icon({
-                            anchor: [0.5, 46],
-                            anchorXUnits: "fraction",
-                            anchorYUnits: "pixels",
-                            src: _this.iconImagePath + _this.iconImage
-                        })
-                    })
-                )
+                this.setIconImage(this.FeatureMap[this[idKey]])
             }
+        },
+        setIconImage(feature, hover = "", status = "") {
+            const _this = this
+            feature.setStyle(
+                new Style({
+                    image: new Icon({
+                        anchor: [0.5, 46],
+                        anchorXUnits: "fraction",
+                        anchorYUnits: "pixels",
+                        src: _this.iconImagePath + _this["iconImage" + hover]
+                    })
+                })
+            )
         },
         clearFn() {
             this.mapId = ""
+            this.oldMapId = ""
+            this.oldClickMapId = ""
+            this.FeatureMap = {}
             this.$store.commit("setLatestMapId", "")
             this.$store.commit("setLatestCheckInput", "")
             this.setMapPoints()
-            this.FeatureMap = {}
             this.resetOldFeatureStyle()
-            this.oldMapId = ""
-            this.oldClickMapId = ""
         },
         clickList(dev) {
             this.$store.commit("setCmsId", dev.id)
@@ -371,17 +336,7 @@ export default {
         },
         setOldClickPoint() {
             this.oldClickMapId = this.mapId
-            const _this = this
-            this.FeatureMap[this.oldClickMapId].setStyle(
-                new Style({
-                    image: new Icon({
-                        anchor: [0.5, 46],
-                        anchorXUnits: "fraction",
-                        anchorYUnits: "pixels",
-                        src: _this.iconImagePath + _this.iconImageHover
-                    })
-                })
-            )
+            this.setIconImage(this.FeatureMap[this.oldClickMapId], "Hover")
         },
         loadMapPoints() {
             setTimeout(() => {
@@ -438,14 +393,14 @@ export default {
     position: absolute;
     top: 32px;
     left: 56px;
-    z-index: 9999;
+    z-index: 1999;
 }
 
 .result-outwrap {
     position: absolute;
     top: 70px;
     left: 56px;
-    z-index: 9998;
+    z-index: 1998;
     width: auto;
     .wrap-cms {
         margin: 0;

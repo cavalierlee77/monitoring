@@ -418,23 +418,6 @@ const mutations = {
                 Vue.set(state.checkListEmpty, ok, true)
             }
         })
-        // Object.entries(data).map(([k, v]) => {
-        //     if (v.length > 0) {
-        //         if (!state.checkList.k) {
-        //             state.checkList = { ...state.checkList, [k]: [] }
-        //         }
-        //         state.checkList[k] = [...v]
-        //     } else if (v.length === 0) {
-        //         if (state.checkList[k]) {
-        //             delete state.checkList[k]
-        //         }
-        //     }
-        // })
-        // if (Object.entries(state.checkList).length > 0) {
-        //     state.checkListEmpty = false
-        // } else {
-        //     state.checkListEmpty = true
-        // }
     },
     setErrorDev(state, data) {
         if (!state.errorDev.includes(data)) {

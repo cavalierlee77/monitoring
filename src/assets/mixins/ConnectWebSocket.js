@@ -52,12 +52,12 @@ const ConnectWebSocket = {
             : window.config_.websocketPath
         this.$connect(socketUrl + this.socketId)
         // 建立socket链接
-        console.log("建立socket链接")
+        // console.log("建立socket链接")
         this.initializeWebSocket()
     },
     beforeDestroy() {
         // 页面销毁时,断开连接
-        console.log("页面销毁，断开socket连接")
+        // console.log("页面销毁，断开socket连接")
         this.$disconnect()
     },
     watch: {

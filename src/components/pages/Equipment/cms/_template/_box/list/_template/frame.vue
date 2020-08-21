@@ -40,7 +40,8 @@ export default {
             lastlist: [],
             dialogStatus: false,
             cmsGroupList: [],
-            selStatusList: []
+            selStatusList: [],
+            goingTodo: "remixCmsGroupList"
         }
     },
     computed: {
@@ -61,8 +62,11 @@ export default {
         CmsWindow: () =>
             import(/* webpackchunkName: "cms" */ "@pages/_fragments/cms")
     },
+    created() {},
     methods: {
         remixCmsGroupList(...types) {
+            this.selStatusList = []
+            this.cmsGroupList = []
             types.push("roadName")
             this.devInfoList.forEach(cms => {
                 if (
@@ -108,62 +112,54 @@ export default {
             } else {
                 this.selStatusList = []
             }
-            if (!this.checkListEmpty) {
-                const _devList = [...this.devInfoList]
-                let _selStr = ""
-                let _newDevList = []
-                _newDevList = _devList
-                    .filter(dev => {
-                        let f = true
-                        Object.entries(checkList).forEach(([k, v]) => {
-                            f = f && v.includes(dev[k])
-                        })
-                        if (f) {
-                            return dev
-                        }
+            const _devList = [...this.devInfoList]
+            let _selStr = ""
+            let _newDevList = []
+            _newDevList = _devList
+                .filter(dev => {
+                    let f = true
+                    Object.entries(checkList).forEach(([k, v]) => {
+                        f = f && v.includes(dev[k])
                     })
-                    .map(dev => dev.mapId)
-                Object.entries(checkList).forEach(([k, v], index) => {
-                    if (v.length > 1) {
-                        _selStr += "("
-                    }
-                    v.forEach((val, ind) => {
-                        _selStr += val
-                        if (parseInt(ind) + 1 < v.length) {
-                            _selStr += ","
-                        }
-                    })
-                    if (v.length > 1) {
-                        _selStr += ")"
-                    }
-                    if (
-                        parseInt(index) + 1 <
-                        Object.entries(checkList).length
-                    ) {
-                        _selStr += " - "
+                    if (f) {
+                        return dev
                     }
                 })
-                if (_statusStr !== "") {
+                .map(dev => dev.mapId)
+            Object.entries(checkList).forEach(([k, v], index) => {
+                if (v.length > 1) {
+                    _selStr += "("
+                }
+                v.forEach((val, ind) => {
+                    _selStr += val
+                    if (parseInt(ind) + 1 < v.length) {
+                        _selStr += ","
+                    }
+                })
+                if (v.length > 1) {
+                    _selStr += ")"
+                }
+                if (parseInt(index) + 1 < Object.entries(checkList).length) {
                     _selStr += " - "
                 }
-                _selStr += _statusStr
-                if (
-                    _newDevList &&
-                    _newDevList.length > 0 &&
-                    this.selStatusList.length > 0
-                ) {
-                    _newDevList = this.remixCheckListByStatus(_newDevList)
-                }
-                this.selStr = _selStr
-                this.cmsGroupList = []
-                this.cmsGroupList.push({
-                    title: _selStr,
-                    list: [..._newDevList]
-                })
-            } else if (this.checkListEmpty) {
-                this.cmsGroupList = []
-                this.remixCmsGroupList()
+            })
+            if (_statusStr !== "") {
+                _selStr += " - "
             }
+            _selStr += _statusStr
+            if (
+                _newDevList &&
+                _newDevList.length > 0 &&
+                this.selStatusList.length > 0
+            ) {
+                _newDevList = this.remixCheckListByStatus(_newDevList)
+            }
+            this.selStr = _selStr
+            this.cmsGroupList = []
+            this.cmsGroupList.push({
+                title: _selStr,
+                list: [..._newDevList]
+            })
         },
         remixCheckListByStatus(list) {
             const filterList = []
@@ -179,26 +175,49 @@ export default {
                 }
             })
             return filterList
+        },
+        buildList(val = false, oldVal = undefined, todo = false) {
+            if (!todo) {
+                if (
+                    !this.checkListEmpty &&
+                    typeof this.checkListEmpty !== "undefined"
+                ) {
+                    this.goingTodo = "remixCheckList"
+                }
+                if (val === true && typeof oldVal !== "undefined") {
+                    this.goingTodo = "remixCmsGroupList"
+                }
+            }
+            if (this.devInfoList.length > 0) {
+                this[this.goingTodo]()
+            }
         }
     },
     watch: {
         cmsList: {
             handler(val) {
-                this.remixCheckList()
+                this.buildList()
             },
             deep: true
         },
         checkList: {
             handler(val) {
-                this.remixCheckList()
+                this.buildList()
             },
+            immediate: true,
             deep: true
         },
         checkListEmpty: {
-            handler(val) {
-                this.remixCheckList()
+            handler(val, oldVal) {
+                this.buildList(val, oldVal)
             }
-            // immediate: true
+        },
+        devInfoList: {
+            handler(val) {
+                if (val.length > 0) {
+                    this.buildList(false, undefined, true)
+                }
+            }
         }
     }
 }

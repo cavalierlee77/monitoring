@@ -43,6 +43,15 @@ export default {
             connect_success: "socket链接状态信息",
             statusDataReturn: "设备状态信息列表"
         },
+        selectDir: {
+            roadName: "路线",
+            routeLineName: "路段",
+            devicePositionDesc: "位置",
+            deviceDirectDesc: "方向",
+            cmsTypeDesc: "类型",
+            manufacturer: "品牌",
+            status: "状态"
+        },
         statusDesc: ["在线", "离线"]
     },
     mutations: {},

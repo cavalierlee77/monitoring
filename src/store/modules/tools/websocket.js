@@ -15,7 +15,7 @@ export default {
             // 连接打开触发的函数
             Vue.prototype.$socket = event.currentTarget
             state.socket.isConnected = true
-            console.log("isConnected")
+            // console.log("isConnected")
         },
         SOCKET_ONCLOSE(state, event) {
             // 连接关闭触发的函数

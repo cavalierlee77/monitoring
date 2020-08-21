@@ -44,25 +44,11 @@ export default {
             checkedAll: {}
         }
     },
-    // props: {
-    //     listName: {
-    //         type: String,
-    //         default: () => "default"
-    //     }
-    // },
     computed: {
         ...mapState({
             SelectList: state => {
                 const devs = state.cms.devInfoList
-                const selectDir = {
-                    roadName: "路线",
-                    routeLineName: "路段",
-                    devicePositionDesc: "位置",
-                    deviceDirectDesc: "方向",
-                    cmsTypeDesc: "类型",
-                    manufacturer: "品牌",
-                    status: "状态"
-                }
+                const selectDir = state.cms.selectDir
                 const selectList = {}
                 Object.keys(selectDir).forEach(k => {
                     selectList[k] = []

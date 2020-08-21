@@ -19,7 +19,7 @@
         <i
             class="icon-custom icon-close icon-delete"
             @click="closeFn"
-            v-if="inputModel !== ''"
+            v-if="inputModel !== '' || needClearBtn"
         ></i>
         <div></div>
         <section class="query-result">
@@ -76,6 +76,10 @@ export default {
         queryMouseover: {
             type: Function,
             default: () => {}
+        },
+        needClearBtn: {
+            type: Boolean,
+            default: false
         }
     },
     methods: {

@@ -44,6 +44,8 @@ export default {
                 })
             } else if (this.fromWhere === "cms") {
                 this.$store.commit("setDynamicLink", "list")
+            } else {
+                this.$store.commit("setDynamicLink", "list")
             }
         }
     },

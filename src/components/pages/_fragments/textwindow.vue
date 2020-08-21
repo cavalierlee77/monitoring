@@ -3,19 +3,19 @@
         <div
             class="text-window"
             v-bind:style="{
-                width: infos.width,
-                height: infos.height
+                width: dev.width,
+                height: dev.height
             }"
         >
             <el-carousel
-                :width="infos.width"
-                :height="infos.height"
+                :width="dev.width"
+                :height="dev.height"
                 indicator-position="outside"
                 arrow="never"
-                v-if="!playlist === false"
+                v-if="!playList === false"
             >
                 <el-carousel-item
-                    v-for="(page, index) in playlist"
+                    v-for="(page, index) in playList"
                     :key="index"
                 >
                     <div
@@ -34,13 +34,80 @@
     </div>
 </template>
 <script>
+import { mapState } from "vuex"
 export default {
+    data() {
+        return {
+            playList: [],
+            dev: {},
+            cms: {}
+        }
+    },
     props: {
-        infos: {
-            type: Object
+        cmsId: {
+            type: String
+        }
+    },
+    computed: {
+        ...mapState({
+            devMap: state => state.cms.devMap,
+            cmsMap: state => state.cms.cmsMap,
+            dirColor: state => state.cms.directionShowColor,
+            dirFontFamily: state => state.cms.directionShowFontFamily,
+            dirFontSize: state => state.cms.directionFontSize
+        })
+    },
+    methods: {
+        remixDev() {
+            const size = this.dev.cmsSizeDesc.split("×")
+            this.dev.width = size[0] + "px"
+            this.dev.height = size[1] + "px"
         },
-        playlist: {
-            type: Array
+        remixCms() {
+            if (this.cms) {
+                try {
+                    this.playList = JSON.parse(this.cms.data)
+                    this.playList.forEach(item => {
+                        const ph = this.playList.dph / item.wordList.length
+                        item.wordList.forEach(word => {
+                            word.pstyle = {
+                                height: ph + "px",
+                                top: word.wy + "px",
+                                left: word.wx + "px",
+                                "letter-spacing": 0 + "px",
+                                "font-size": this.dirFontSize[item.fs] + "px",
+                                color: this.dirColor[item.fc],
+                                "font-family": this.dirFontFamily[item.fn],
+                                "line-height": this.dirFontSize[item.fs] + "px"
+                            }
+                        })
+                    })
+                } catch (error) {
+                    console.log(this.cms.deviceId)
+                }
+            }
+        },
+        resetDev() {
+            this.dev = this.devMap[this.cmsId]
+            this.cms = this.cmsMap[this.cmsId]
+            this.remixDev()
+            this.remixCms()
+        }
+    },
+    watch: {
+        cmsMap: {
+            handler(val) {
+                if (Object.keys(val).length > 0) {
+                    this.resetDev()
+                }
+            },
+            immediate: true,
+            deep: true
+        },
+        cmsId: {
+            handler() {
+                this.resetDev()
+            }
         }
     }
 }

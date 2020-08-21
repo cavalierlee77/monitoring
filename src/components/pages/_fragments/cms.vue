@@ -1,7 +1,7 @@
 <template>
     <div class="wrap-cms" v-if="checkStatus(statusList || false)">
         <section>
-            <text-window :infos="dev" :playlist="playList"></text-window>
+            <text-window :cmsId="cmsId"></text-window>
             <header>
                 <div class="infos">
                     <span>{{ dev.stationInfo }}</span>
@@ -58,11 +58,9 @@ import { mapState } from "vuex"
 export default {
     data() {
         return {
-            playList: [],
             statusList: {},
             dev: {},
-            status: [],
-            cms: {}
+            status: []
         }
     },
     components: {
@@ -70,14 +68,10 @@ export default {
     },
     computed: {
         ...mapState({
-            dirColor: state => state.cms.directionShowColor,
-            dirFontFamily: state => state.cms.directionShowFontFamily,
-            dirFontSize: state => state.cms.directionFontSize,
             selStatusList: state => state.cms.selStatusList,
             statusDesc: state => state.cms.statusDescMap,
             devMap: state => state.cms.devMap,
             statusMap: state => state.cms.statusMap,
-            cmsMap: state => state.cms.cmsMap,
             tillNowPage: state => state.cms.tillNowPage
         })
     },
@@ -113,59 +107,27 @@ export default {
                 this.$store.commit("setDynamicLink", type)
             }
         },
-        remixDev() {
-            const size = this.dev.cmsSizeDesc.split("×")
-            this.dev.width = size[0] + "px"
-            this.dev.height = size[1] + "px"
-        },
         setStatusList() {
             this.statusList = { ...this.statusDesc[this.cmsId] }
         },
-        remixCms() {
-            if (this.cms) {
-                try {
-                    this.playList = JSON.parse(this.cms.data)
-                    this.playList.forEach(item => {
-                        const ph = this.playList.dph / item.wordList.length
-                        item.wordList.forEach(word => {
-                            word.pstyle = {
-                                height: ph + "px",
-                                top: word.wy + "px",
-                                left: word.wx + "px",
-                                "letter-spacing": 0 + "px",
-                                "font-size": this.dirFontSize[item.fs] + "px",
-                                color: this.dirColor[item.fc],
-                                "font-family": this.dirFontFamily[item.fn],
-                                "line-height": this.dirFontSize[item.fs] + "px"
-                            }
-                        })
-                    })
-                } catch (error) {
-                    console.log(this.cms.deviceId)
-                }
-            }
-        },
         setDevInfos() {
             this.dev = this.devMap[this.cmsId]
-            this.cms = this.cmsMap[this.cmsId]
-            this.status = this.statusMap[this.cmsId]
-            this.remixDev()
-            this.remixCms()
             this.setStatusList()
         }
     },
     watch: {
-        cmsId: {
-            handler() {
-                this.setDevInfos()
-            },
-            immediate: true
-        },
         statusDesc: {
             handler() {
                 this.setStatusList()
             },
             deep: true,
+            immediate: true
+        },
+        cmsId: {
+            handler() {
+                this.setDevInfos()
+                this.setStatusList()
+            },
             immediate: true
         }
     }
