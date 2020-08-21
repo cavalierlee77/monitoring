@@ -62,7 +62,6 @@ export default {
         CmsWindow: () =>
             import(/* webpackchunkName: "cms" */ "@pages/_fragments/cms")
     },
-    created() {},
     methods: {
         remixCmsGroupList(...types) {
             this.selStatusList = []
@@ -209,7 +208,9 @@ export default {
         },
         checkListEmpty: {
             handler(val, oldVal) {
-                this.buildList(val, oldVal)
+                if (val === true) {
+                    this.buildList(val, oldVal)
+                }
             }
         },
         devInfoList: {
