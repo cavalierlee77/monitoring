@@ -1,6 +1,6 @@
 module.exports = {
-    // pattern: "dev",
-    pattern: "Prod",
+    pattern: "dev",
+    // pattern: "Prod",
     // pattern: "Local",
     proxy: {
         "/Monitor-Graph": {
